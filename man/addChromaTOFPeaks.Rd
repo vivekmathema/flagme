@@ -1,0 +1,69 @@
+\name{addChromaTOFPeaks}
+\alias{addChromaTOFPeaks}
+
+\title{Add ChromaTOF peak detection results}
+
+\description{Reads ASCII tab-delimited format files (output from ChromaTOF) and attaches them to an already created \code{peaksDataset} object}
+
+\usage{addChromaTOFPeaks(object,fns=dir(,"[Tt][Xx][Tx]"),rtDivide=60,verbose=TRUE,...)}
+
+\arguments{
+
+\item{object}{a \code{peaksDataset} object.}
+
+\item{fns}{character vector of same length as \code{object@rawdata} (user ensures the order matches)}
+
+\item{rtDivide}{number giving the amount to divide the retention times by.}
+
+\item{verbose}{whether to give verbose output, default \code{TRUE}}
+
+\item{...}{arguments passed on to \code{parseChromaTOF}}
+
+}
+
+
+\details{
+
+Repeated calls to \code{parseChromaTOF} to add peak detection results to the original \code{peaksDataset} object.
+
+}
+
+\value{
+
+\code{peaksDataset} object
+
+}
+
+
+\author{Mark Robinson}
+
+
+\references{
+
+Mark D Robinson (2008).  Methods for the analysis of gas chromatography - mass spectrometry data 
+\emph{PhD dissertation} University of Melbourne.
+
+}
+
+
+\seealso{
+\code{\link{parseChromaTOF}}, \code{\link{peaksDataset}}
+}
+
+\examples{
+# need access to CDF (raw data) and ChromaTOF files 
+require(gcspikelite)
+gcmsPath<-paste(.find.package("gcspikelite"),"data",sep="/")
+
+# full paths to file names
+cdfFiles<-dir(gcmsPath,"CDF",full=TRUE)
+# [not run] cTofFiles<-dir(gcmsPath,"txt",full=TRUE)
+
+# create a 'peaksDataset' object and add ChromaTOF peaks to it
+pd<-peaksDataset(cdfFiles[1],mz=seq(50,550),rtrange=c(7.5,8.5))
+# [not run] pd<-addChromTOFPeaks(pd,...)
+}
+
+\keyword{manip}
+
+

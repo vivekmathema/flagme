@@ -1,0 +1,59 @@
+\name{gatherInfo}
+\alias{gatherInfo}
+\title{Gathers abundance informations from an alignment}
+\description{
+  Given an alignment table (indices of matched peaks across several samples) such as that within a \code{progressiveAlignment} or \code{multipleAlignment} object, 
+  this routines goes through the raw data and collects the abundance of each fragment peak, as well as the retention times across the samples.
+}
+\usage{
+gatherInfo(pD, obj, newind = NULL, method = c("apex"), findmzind = TRUE, useTIC = FALSE, top = NULL, intensity.cut = 0.05)
+}
+%- maybe also 'usage' for other objects documented here.
+\arguments{
+  \item{pD}{a \code{peaksDataset} object, to get the abundance data from }
+  \item{obj}{either a \code{multipleAlignment} or \code{progressiveAlignment} object}
+  \item{newind}{list giving the }
+  \item{method}{method used to gather abundance information, only \code{apex} implemented currently.}
+  \item{findmzind}{logical, whether to take a subset of all m/z indices}
+  \item{useTIC}{logical, whether to use total ion current for abundance summaries}
+  \item{top}{only use the top \code{top} peaks}
+  \item{intensity.cut}{percentage of the maximum intensity}
+}
+\details{
+This procedure loops through the the table of matched peaks and gathers the 
+}
+\value{
+  Returns a list (of lists) for each row in the alignment table.  Each list has 3 elements:
+  \item{mz}{a numerical vector of the m/z fragments used}
+  \item{rt}{a numerical vector for the exact retention time of each peak across all samples}
+  \item{data}{matrix of fragment intensities.  If \code{useTIC=TRUE}, this matrix will have a single row}
+}
+\references{
+Mark D Robinson (2008).  Methods for the analysis of gas chromatography - mass spectrometry data 
+\emph{PhD dissertation} University of Melbourne.
+}
+\author{Mark Robinson}
+\seealso{\code{\link{imputePeaks}}}
+\examples{
+require(gcspikelite)
+
+# paths and files
+gcmsPath<-paste(.find.package("gcspikelite"),"data",sep="/")
+cdfFiles<-dir(gcmsPath,"CDF",full=TRUE)
+eluFiles<-dir(gcmsPath,"ELU",full=TRUE)
+
+# read data, peak detection results
+pd<-peaksDataset(cdfFiles[1:2],mz=seq(50,550),rtrange=c(7.5,8.5))
+pd<-addAMDISPeaks(pd,eluFiles[1:2])
+
+# multiple alignment
+ma<-multipleAlignment(pd,c(1,1),wn.gap=0.5,wn.D=.05,bw.gap=0.6,bw.D=.2,usePeaks=TRUE,filterMin=1,df=50,verbose=TRUE)
+
+# gather apex intensities
+d<-gatherInfo(pd,ma)
+
+# table of retention times
+nm<-list(paste("MP",1:length(d),sep=""),c("S1","S2"))
+rts<-matrix(unlist(sapply(d,.subset,"rt")),byrow=TRUE,nc=2,dimnames=nm)
+}
+\keyword{manip}

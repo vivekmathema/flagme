@@ -1,0 +1,77 @@
+\name{imputePeaks}
+\alias{imputePeaks}
+
+\title{Imputatin of locations of peaks that were undetected}
+
+\description{Using the information within the peaks that are matched across several runs, we can impute the location of the peaks that are undetected in a subset of runs}
+
+\usage{imputePeaks(pD, obj, type = 1, obj2 = NULL, filterMin = 3, verbose = TRUE)}
+
+\arguments{
+
+\item{pD}{a \code{peaksDataset} object}
+
+\item{obj}{the alignment object, either \code{multipleAlignment} or \code{progressiveAlignment}, that is used to infer the unmatched peak locations}
+
+\item{type}{type of imputation to do, 1 for simple linear interpolation (default), 2 only works if \code{obj2} is a \code{clusterAlignment} object }
+
+\item{obj2}{a \code{clusterAlignment} object}
+
+\item{filterMin}{minimum number of peaks within a merged peak to impute}
+
+\item{verbose}{logical, whether to print out information}
+
+}
+
+
+\details{
+
+If you are aligning several samples and for a (small) subset of the samples in question, a peak is undetected, there is information within the alignment that can be useful in determining where the undetected peak is, based on the surrounding matched peaks.  Instead of moving forward with missing values into the data matrices, this procedures goes back to the raw data and imputes the location of the apex (as well as the start and end), so that we do not need to bother with post-hoc imputation or removing data because of missing components.
+
+We realize that imputation is prone to error and prone to attributing intensity from neighbouring peaks to the unmatched peak.  We argue that this is still better than having to deal with these in statistical models after that fact.  This may be an area of future improvement.
+
+}
+
+\value{
+
+\code{list} with 3 elements \code{apex}, \code{start} and \code{end}, each masked matrices giving the scan numbers of the imputed peaks.
+
+}
+
+
+\author{Mark Robinson}
+
+\references{
+
+Mark D Robinson (2008).  Methods for the analysis of gas chromatography - mass spectrometry data 
+\emph{PhD dissertation} University of Melbourne.
+
+}
+
+
+\seealso{
+\code{\link{multipleAlignment}}, \code{\link{progressiveAlignment}}, \code{\link{peaksDataset}}
+}
+
+\examples{
+require(gcspikelite)
+
+# paths and files
+gcmsPath<-paste(.find.package("gcspikelite"),"data",sep="/")
+cdfFiles<-dir(gcmsPath,"CDF",full=TRUE)
+eluFiles<-dir(gcmsPath,"ELU",full=TRUE)
+
+# read data, peak detection results
+pd<-peaksDataset(cdfFiles[1:3],mz=seq(50,550),rtrange=c(7.5,8.5))
+pd<-addAMDISPeaks(pd,eluFiles[1:3])
+
+# alignments
+ca<-clusterAlignment(pd, gap = .5,D=.05,df=30)
+pa<-progressiveAlignment(pd, ca, gap = .6, D=.1,df=30)
+
+v<-imputePeaks(pd,pa,filterMin=1)
+}
+
+\keyword{manip}
+
+

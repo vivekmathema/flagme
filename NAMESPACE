@@ -1,0 +1,13 @@
+.onLoad <- function(lib, pkg) require(methods)
+
+#  All functions exported other than those starting with "."
+exportPattern("^[^\\.]")
+
+exportClasses("peaksDataset")
+exportMethods("show","plot")
+
+#suppressWarnings(import(graphics,methods,xcms,SparseM))
+import(graphics,methods,xcms,SparseM)
+#importFrom(SparseM,as.matrix,as.matrix.csc,matrix.csc)
+#importFrom(gplots,colorpanel)
+

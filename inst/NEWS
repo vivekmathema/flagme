@@ -1,0 +1,7 @@
+===============================================
+=           0.5 SERIES                        =
+===============================================
+
+o First release to Bioconductor (2.4) - includes basis classes and 
+  methods for I/O, multiple alignment of GCMS peaks
+  (from Robinson et al 2007, BMC Bioinformatics)
