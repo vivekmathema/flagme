@@ -38,6 +38,7 @@
   fit<-rlm(y~-1+v,maxit=maxit)
   cat(".")
   if (fitOrCoef=="coef") {
+    mzeff <- NULL
     sample<-fit$coef[1:ncol(d)]
         fragment<-fit$coef[(ncol(d)+1):(ncol(d)+nrow(d[k,])-1)]
         fragment<-c(fragment,-sum(fragment))
@@ -45,7 +46,7 @@
           mzeff<-c(fit$coef[(ncol(d)+nrow(d[k,])):length(fit$coef)],0)*mean(u$mz[k])
           sample<-sample+mzeff[sort(factor(cls))]
         }
-        list(sample=sample,fragment=fragment)
+        list(sample=sample,fragment=fragment,mzeff=mzeff)
   } else {
     # save a little space for stuff that probably don't need
     #fit$qr<-NULL
