@@ -74,7 +74,7 @@ peaksDataset<-function(fns=dir(,"[Cc][Dd][Ff]"),verbose=TRUE,mz=seq(50,550),rtDi
     b<-b/mx*scale.up
 	if (!overlap) {
       if(i==1) {
-	    plot(object@rawrt[[ind]],b,type="l",xlab="Retention Time",ylab="",xlim=rtrange,ylim=c(0,length(runs)),col=cols[i],xaxs="i",axes=FALSE,...)
+	    plot(object@rawrt[[ind]],b,type="l",xlab="Retention Time",ylab="",xlim=rtrange,ylim=c(-.5,length(runs)),col=cols[i],xaxs="i",axes=FALSE,...)
             axis(1)
 	  } else {
 	    lines(object@rawrt[[ind]],b+i-1,col=cols[i],...)
@@ -116,7 +116,7 @@ peaksDataset<-function(fns=dir(,"[Cc][Dd][Ff]"),verbose=TRUE,mz=seq(50,550),rtDi
 	  rws<-as.integer(seq(1,nrow(mind),by=thin))
 	  for(i in rws) {
 	    if( !is.na(mind[i,1]) & plotMergedPeakLabels )
-		  text(rtlist[[runs[1]]][mind[i,1]],-.02,i,col="blue",pos=1,cex=.8)
+		  text(rtlist[[runs[1]]][mind[i,1]],0,srt=90,i,col="blue",pos=1,cex=peakCex*.8,adj=1)
 	    for(j in 1:(ncol(mind)-1)) {
 	      ind1<-mind[i,j]
 	      ind2<-mind[i,j+1]
@@ -236,7 +236,7 @@ addChromaTOFPeaks<-function(object,fns=dir(,"[Tt][Xx][Tx]"),rtDivide=60,verbose=
   for(i in 1:length(object@files)) {
     if (verbose)
 	  cat("Reading",fns[i],"...")
-    csin<-parseChromaTOF(fns[i],mz=object@mz,rtrange=c(mn,mx),...)
+    csin<-parseChromaTOF(fns[i],mz=object@mz,rtrange=c(mn,mx),rtDivide=rtDivide,...)
 	thisrt<-csin$tab$rt
 	thisind<-rep(NA,length(thisrt))
 	thisdata<-matrix(0,nrow=length(object@mz),ncol=nrow(csin$tab))

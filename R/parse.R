@@ -64,7 +64,7 @@ parseELU<-function(f,min.pc=.01,mz=seq(50,550),rt.cut=.008,rtrange=NULL) {
   list(peaks=newpeaks,tab=newtab)
 }
 
-parseChromaTOF<-function(fn,min.pc=.01,mz=seq(85,500),rt.cut=.008,rtrange=NULL,skip=1) {
+parseChromaTOF<-function(fn,min.pc=.01,mz=seq(85,500),rt.cut=.008,rtrange=NULL,skip=1, rtDivide=60) {
   f<-read.table(fn,sep="\t",quote="",comment.char="",skip=skip,header=TRUE,stringsAsFactors=FALSE)
   pk<-matrix(0,nr=length(mz),nc=nrow(f))
   for(i in 1:nrow(f)) {
@@ -74,5 +74,9 @@ parseChromaTOF<-function(fn,min.pc=.01,mz=seq(85,500),rt.cut=.008,rtrange=NULL,s
 	m<-match(pmz,mz)
 	pk[m,i]<-int
   }
-  list(tab=data.frame(rt=f$R.T,ht=f$Height),peaks=pk)
+  if( is.null(rtrange) )
+    w <- seq_len( nrow(f) )
+  else
+    w <- which( (f$R.T/rtDivide) >= rtrange[1] & (f$R.T/rtDivide) <= rtrange[2] )
+  list(tab=data.frame(rt=f$R.T[w],ht=f$Height[w]),peaks=pk[,w])
 }

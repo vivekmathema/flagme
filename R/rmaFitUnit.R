@@ -43,10 +43,11 @@
         fragment<-fit$coef[(ncol(d)+1):(ncol(d)+nrow(d[k,])-1)]
         fragment<-c(fragment,-sum(fragment))
         if(mzEffect) {
-          mzeff<-c(fit$coef[(ncol(d)+nrow(d[k,])):length(fit$coef)],0)*mean(u$mz[k])
+		  mzeffects <- c(fit$coef[(ncol(d)+nrow(d[k,])):length(fit$coef)],0)
+          mzeff<-mzeffects*mean(u$mz[k])
           sample<-sample+mzeff[sort(factor(cls))]
         }
-        list(sample=sample,fragment=fragment,mzeff=mzeff)
+        list(sample=sample,fragment=fragment,mzeff=mzeffects)
   } else {
     # save a little space for stuff that probably don't need
     #fit$qr<-NULL
