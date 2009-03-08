@@ -50,7 +50,7 @@ peaksDataset<-function(fns=dir(,"[Cc][Dd][Ff]"),verbose=TRUE,mz=seq(50,550),rtDi
 	rtlist<-object@peaksrt
   } else {
     datalist<-object@rawdata
-	rtlist<-object@rawrt    
+	rtlist<-object@rawrt
   }
   if(calcGlobalMax) {
     mx<-0

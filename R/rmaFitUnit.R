@@ -1,4 +1,4 @@
-.rmaFitPeak <- function(u,maxit=5,mzEffect=TRUE,cls=NULL,fitSample=TRUE,fitOrCoef=c("coef","fit"),TRANSFORM=log2) {
+rmaFitUnit <- function(u,maxit=5,mzEffect=TRUE,cls=NULL,fitSample=TRUE,fitOrCoef=c("coef","fit"),TRANSFORM=log2) {
   require(MASS)
   d<-u$data
   fitOrCoef=match.arg(fitOrCoef)

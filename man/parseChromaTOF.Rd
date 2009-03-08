@@ -5,7 +5,7 @@
 
 \description{Reads ASCII ChromaTOF-format files from AMDIS (Automated Mass Spectral Deconvolution and Identification System)}
 
-\usage{parseChromaTOF(fn,min.pc=.01,mz=seq(85,500),rt.cut=.008,rtrange=NULL,skip=1)}
+\usage{parseChromaTOF(fn,min.pc=.01,mz=seq(85,500),rt.cut=.008,rtrange=NULL,skip=1,rtDivide=60)}
 
 \arguments{
 
@@ -20,6 +20,8 @@
 \item{rtrange}{retention time range to parse peaks from, can speed up parsing if only interested in a small region (must be \code{numeric} vector of length 2)}
 
 \item{skip}{number of rows to skip at beginning of the ChromaTOF}
+
+\item{rtDivide}{multiplier to divide the retention times by (default: 60)}
 
 }
 
