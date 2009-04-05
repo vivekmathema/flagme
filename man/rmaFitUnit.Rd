@@ -1,0 +1,73 @@
+\name{rmaFitUnit}
+\alias{rmaFitUnit}
+
+\title{Fits a robust linear model (RLM) for one metabolite}
+
+\description{Using \code{rlm} from MASS, this procedure fits a linear model using all the fragments}
+
+\usage{ rmaFitUnit(u,maxit=5,mzEffect=TRUE,cls=NULL,fitSample=TRUE,fitOrCoef=c("coef","fit"),TRANSFORM=log2) }
+
+\arguments{
+
+\item{u}{a metabolite unit (list object with vectors \code{mz} and \code{rt} for m/z and retention times, respectively and a \code{data} element giving the fragmentxsample intensitity matrix)}
+\item{maxit}{maximum number of iterations (default: 5)}
+\item{mzEffect}{logical, whether to fit m/z effect (default: \code{TRUE})}
+\item{cls}{class variable}
+\item{fitSample}{whether to fit individual samples (alternative is fit by group)}
+\item{fitOrCoef}{whether to return a vector of coefficients (default: "coef"), or an \code{rlm} object ("fit")}
+\item{TRANSFORM}{function to transform the raw data to before fitting (default: \code{log2})}
+
+}
+
+
+\details{
+
+Fits a robust linear model.
+
+}
+
+\value{
+
+\code{list} giving elements of \code{fragment} and \code{sample} coefficients (if \code{fitOrCoef="coef"}) or a \code{list} 
+of elements from the fitting process (if \code{fitOrCoef="fit"})
+
+}
+
+
+\author{Mark Robinson}
+
+
+\references{
+
+Mark D Robinson (2008).  Methods for the analysis of gas chromatography - mass spectrometry data 
+\emph{PhD dissertation} University of Melbourne.
+
+}
+
+
+\seealso{
+\code{\link{peaksAlignment}}, \code{\link{clusterAlignment}}
+}
+
+\examples{
+require(gcspikelite)
+
+# paths and files
+gcmsPath<-paste(.find.package("gcspikelite"),"data",sep="/")
+cdfFiles<-dir(gcmsPath,"CDF",full=TRUE)
+eluFiles<-dir(gcmsPath,"ELU",full=TRUE)
+
+# read data, peak detection results
+pd<-peaksDataset(cdfFiles[1:2],mz=seq(50,550),rtrange=c(7.5,8.5))
+pd<-addAMDISPeaks(pd,eluFiles[1:2])
+
+# pairwise alignment using all scans
+fullca<-clusterAlignment(pd, usePeaks = FALSE, df = 100)
+
+# calculate retention time shifts
+timedf<-calcTimeDiffs(pd, fullca)
+}
+
+\keyword{manip}
+
+
