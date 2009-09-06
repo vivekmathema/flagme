@@ -1,5 +1,5 @@
 Package: flagme
-Version: 1.1.0
+Version: 1.1.1
 Date: 2008/10/03
 Title: Analysis of Metabolomics GC/MS Data
 Author: Mark Robinson <mrobinson@wehi.edu.au>
@@ -8,5 +8,5 @@ Depends: methods, graphics, xcms, SparseM, gcspikelite
 Suggests: gplots, MASS
 biocViews: Bioinformatics, DifferentialExpression, MassSpectrometry
 Description: Fragment-level analysis of gas chromatography - mass spectrometry metabolomics data
-License: LGPL version 2 or later
+License: LGPL (>= 2)
 Collate: 0classes.R clusterAlignment.R init.R multipleAlignment.R peaksAlignment.R progressiveAlignment.R betweenAlignment.R dp.R metrics.R parse.R peaksDataset.R gatherInfo.R plotFragments.R rmaFitUnit.R
