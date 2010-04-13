@@ -1,6 +1,5 @@
 
 peaksDataset<-function(fns=dir(,"[Cc][Dd][Ff]"),verbose=TRUE,mz=seq(50,550),rtDivide=60,rtrange=NULL) {
-  require(xcms)
   rawdata<-vector("list",length(fns))
   rawrt<-vector("list",length(fns))
   for(i in 1:length(fns)) {
@@ -261,7 +260,6 @@ addChromaTOFPeaks<-function(object,fns=dir(,"[Tt][Xx][Tx]"),rtDivide=60,verbose=
 
 setMethod("plotImage","peaksDataset",
   function(object,run=1,rtrange=c(11,13),main=NULL,mzrange=c(50,200),SCALE=log2,...) {
-  require(gplots)
   mz<-object@mz
   for(i in run) {
     rt<-object@rawrt[[i]]

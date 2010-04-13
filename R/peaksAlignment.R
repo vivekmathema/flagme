@@ -76,7 +76,7 @@ function(object) {
 })
 
 
-setMethod("plot","peaksAlignment",function(x,y,...) {require(gplots); .plotpA(x,...)})
+setMethod("plot","peaksAlignment",function(x,y,...) {.plotpA(x,...)})
 
 .plotpA<-function(object,xlab="Peaks - run 1",ylab="Peaks - run 2",plotMatches=TRUE,matchPch=19,matchLwd=3,matchCex=.5,matchCol="black",col=colorpanel(50,"black","blue","white"),breaks=seq(0,1,length=51),...) {
 		if(object@compressed)
