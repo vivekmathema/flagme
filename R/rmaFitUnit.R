@@ -6,10 +6,10 @@ rmaFitUnit <- function(u,maxit=5,mzEffect=TRUE,cls=NULL,fitSample=TRUE,fitOrCoef
   #  cat('Unit has NAs.  Please check\n')
   #  return(NULL)
   #}
-  y<-as.vector(TRANSFORM(d[k,]))
-  probe<-factor(rep(u$mz[k],ncol(d)))
-  sample<-factor(rep(names(u$rt),each=nrow(d[k,])))
-  clsv<-factor(rep(cls,each=nrow(d[k,])))
+  y <- as.vector(TRANSFORM(d[k,]))
+  probe <- factor(rep(u$mz[k],ncol(d)))
+  sample <- factor(rep(names(u$rt),each=nrow(d[k,])))
+  clsv <- factor(rep(cls,each=nrow(d[k,])))
   if( !mzEffect ) {
     if (fitSample)
       v<-model.matrix(~-1+sample+probe,contrasts=list(probe=contr.sum))
