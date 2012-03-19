@@ -1,7 +1,7 @@
 
 parseELU<-function(f,min.pc=.01,mz=seq(50,550),rt.cut=.008,rtrange=NULL) {
   mostart<-function(u,key="MO") { which(substr(u,1,2)==key) }
-  v<-read.table(f,comment.char="",sep="\n",stringsAs=F)
+  v<-read.table(f,comment.char="",sep="\n",stringsAsFactors=FALSE)
   keep<-substr(v[,1],1,5)=="NAME:"
   hdr<-v[keep,]  # header lines
   hdr<-strsplit(hdr,"\\|")
@@ -66,7 +66,7 @@ parseELU<-function(f,min.pc=.01,mz=seq(50,550),rt.cut=.008,rtrange=NULL) {
 
 parseChromaTOF<-function(fn,min.pc=.01,mz=seq(85,500),rt.cut=.008,rtrange=NULL,skip=1, rtDivide=60) {
   f<-read.table(fn,sep="\t",quote="",comment.char="",skip=skip,header=TRUE,stringsAsFactors=FALSE)
-  pk<-matrix(0,nr=length(mz),nc=nrow(f))
+  pk<-matrix(0,nrow=length(mz),ncol=nrow(f))
   for(i in 1:nrow(f)) {
     sp<-sapply(strsplit(f$Spectra[i]," ")[[1]],strsplit,split=":")
 	pmz<-as.numeric(sapply(sp,.subset,1))

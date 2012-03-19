@@ -97,7 +97,7 @@ gatherInfo<-function(pD,obj,newind=NULL,method=c("apex"),findmzind=TRUE,useTIC=F
 	}
 	if( !is.null(top) ) {
 	  for(i in seq(along=peaks)) {
-	    o<-sort(order(-rowSums(peaks[[i]]@data,na.rm=T))[1:top])
+	    o<-sort(order(-rowSums(peaks[[i]]@data,na.rm=TRUE))[1:top])
 	    peaks[[i]]@mz<-peaks[[i]]@mz[o]
 	    peaks[[i]]@data<-peaks[[i]]@data[o,]
 	  }

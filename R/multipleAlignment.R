@@ -110,14 +110,14 @@ imputePeaks<-function(pD,obj,type=1,obj2=NULL,filterMin=3,verbose=TRUE) {
 
   }
   
-  v<-which(is.na(ind.scan),arr.ind=T)
+  v<-which(is.na(ind.scan),arr.ind=TRUE)
   v<-v[v[,1] %in% rws,]
 
   for(i in 1:nrow(v)) {
     pr<-xy[,v[i,2]]
     pr<-pr[!is.na(pr)]
     implist<-lapply(approxs[pr],FUN=function(u,ind) u$y[ind],ind=v[i,1])  # use all other runs to impute
-    newind[v[i,1],v[i,2]]<-round(median(unlist(implist),na.rm=T))
+    newind[v[i,1],v[i,2]]<-round(median(unlist(implist),na.rm=TRUE))
   }
   
   newind.start<-matrix(,nrow=nrow(ind),ncol=ncol(ind))
@@ -128,8 +128,8 @@ imputePeaks<-function(pD,obj,type=1,obj2=NULL,filterMin=3,verbose=TRUE) {
     before[,j]<-(pD@peaksind[[ runs[j] ]]-pD@peaksind.start[[ runs[j] ]])[ind[,j]]
     after[,j]<-(pD@peaksind.end[[ runs[j] ]]-pD@peaksind[[ runs[j] ]])[ind[,j]]
   }
-  before<-round(rowMeans(before,na.rm=T))
-  after<-round(rowMeans(after,na.rm=T))
+  before<-round(rowMeans(before,na.rm=TRUE))
+  after<-round(rowMeans(after,na.rm=TRUE))
   
   for(i in 1:nrow(newind)) {
     for(j in 1:ncol(newind)) {
@@ -150,7 +150,7 @@ calcTimeDiffs<-function(pd,ca.full,verbose=TRUE) {
   n<-length(ca.full@alignments)
   estdiffs<-vector("list",n)
   for(k in 1:n) {
-    v<-which(ca.full@aligned==k,arr.ind=T)
+    v<-which(ca.full@aligned==k,arr.ind=TRUE)
     run1<-v[2,1]; run2<-v[2,2]
 	if(run1 > run2) { tmp<-run2; run2<-run1; run1<-tmp }
     if (verbose)

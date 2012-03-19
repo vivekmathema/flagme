@@ -39,7 +39,7 @@ betweenAlignment<-function(pD,cAList,pAList,impList,filterMin=3,gap=0.7,D=10,use
 	pkd[[g]]<-peaksdata
 	if (!usePeaks)
 	  pkd[[g]]<-pkd[[g]] / outer(rep(1,nrow(peaksdata)),rowSums(!is.na(ind))) # average over the number of samples
-	pkr[[g]]<-apply(rt,1,median,na.rm=T)
+	pkr[[g]]<-apply(rt,1,median,na.rm=TRUE)
   }
   #wRA<-new("peaksDataset",mz=mz,rawdata=NULL,files=names(cAList),rawrt=NULL,peaksdata=pkd,peaksrt=pkr,filtind=filtind)
   wRA<-new("peaksDataset",mz=mz,rawdata=list(NULL),files=names(cAList),rawrt=list(NULL),peaksdata=pkd,peaksrt=pkr)

@@ -273,7 +273,7 @@ setMethod("plotImage","peaksDataset",
 	  tit<-object@files[i]
 	else
 	  tit<-main
-	#cat("min=",min(SCALE(ff),na.rm=T)," max=",max(SCALE(ff),na.rm=T),"\n")
+	#cat("min=",min(SCALE(ff),na.rm=TRUE)," max=",max(SCALE(ff),na.rm=T),"\n")
     image(rt[rind],mz[mind],SCALE(ff),col=cols,xlab="retention time",ylab="m/z",xlim=rtrange,main=tit,...)
     #abline(h=c(72.5,73.5,146.5,147.5),col="white",lty=3)
     #if (!is.null(pts)) {
