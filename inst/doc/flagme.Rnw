@@ -45,7 +45,7 @@ To load the data and corresponding peak detection results, we simply create vect
 of the elution, as below:
 
 <<rawdata>>=
-gcmsPath<-paste(.find.package("gcspikelite"),"data",sep="/")
+gcmsPath<-paste(find.package("gcspikelite"),"data",sep="/")
 data(targets)
 cdfFiles<-paste(gcmsPath,targets$FileName,sep="/")
 eluFiles<-gsub("CDF","ELU",cdfFiles)

@@ -53,7 +53,7 @@ Mark D Robinson (2008).  Methods for the analysis of gas chromatography - mass s
 \examples{
 # need access to CDF (raw data) and ChromaTOF files 
 require(gcspikelite)
-gcmsPath<-paste(.find.package("gcspikelite"),"data",sep="/")
+gcmsPath<-paste(find.package("gcspikelite"),"data",sep="/")
 
 # full paths to file names
 cdfFiles<-dir(gcmsPath,"CDF",full=TRUE)

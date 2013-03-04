@@ -65,7 +65,7 @@ Mark D Robinson (2008).  Methods for the analysis of gas chromatography - mass s
 require(gcspikelite)
 
 # paths and files
-gcmsPath<-paste(.find.package("gcspikelite"),"data",sep="/")
+gcmsPath<-paste(find.package("gcspikelite"),"data",sep="/")
 tofFiles<-dir(gcmsPath,"tof",full=TRUE)
 
 # parse ChromaTOF file
