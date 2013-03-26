@@ -50,9 +50,9 @@ parseELU<-function(f,min.pc=.01,mz=seq(50,550),rt.cut=.008,rtrange=NULL) {
 	tab[i,3:4]<-as.numeric(strsplit(sub("FR","",v[[i]][frs[i]]),"-")[[1]])
     tab[i,5]<-as.numeric(sub("RA","",v[[i]][ras[i]]))
   }
-  keep<-which(peaks[which(mz==73),]>0 | peaks[which(mz==147),]>0)  # remove peaks that have no evidence of TMS (73,147)
-  tab<-tab[keep,]
-  peaks<-peaks[,keep]
+  #keep<-which(peaks[which(mz==73),]>0 | peaks[which(mz==147),]>0)  # remove peaks that have no evidence of TMS (73,147)
+  #tab<-tab[keep,]
+  #peaks<-peaks[,keep]
   groups<-cutree(hclust(dist(tab[,2])),h=rt.cut)  # merge peaks that have VERY similiar retention times
   newpeaks<-matrix(0,nrow=length(mz),ncol=max(groups))
   newtab<-data.frame(matrix(0,nrow=max(groups),ncol=5)); colnames(newtab)<-colnames(tab)
