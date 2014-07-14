@@ -4,7 +4,7 @@ Date: 2014/06/28
 Title: Analysis of Metabolomics GC/MS Data
 Author: Mark Robinson <mark.robinson@imls.uzh.ch>
 Maintainer: Mark Robinson <mark.robinson@imls.uzh.ch>, Riccardo Romoli <riccardo.romoli@unifi.it>
-Depends: gcspikelite, xcms
+Depends: gcspikelite, xcms, CAMERA
 Imports: gplots, graphics, MASS, methods, SparseM, stats, utils
 Description: Fragment-level analysis of gas chromatography - mass
         spectrometry metabolomics data
@@ -12,5 +12,5 @@ License: LGPL (>= 2)
 Collate: 0classes.R clusterAlignment.R init.R multipleAlignment.R
         peaksAlignment.R progressiveAlignment.R betweenAlignment.R dp.R
         metrics.R parse.R peaksDataset.R gatherInfo.R plotFragments.R
-        rmaFitUnit.R
+        rmaFitUnit.R addXCMSPeaks.R
 biocViews: DifferentialExpression, MassSpectrometry

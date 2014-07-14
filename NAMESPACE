@@ -15,3 +15,5 @@ importFrom("stats", "approx", "as.dist", "contr.sum", "cutree", "dist",
            "hclust", "median")
 importFrom("utils", "read.table")
 importFrom("xcms", "xcmsRaw")
+importFrom("CAMERA", "annotate", "getpspectra")
+importFrom('gcspikelite')
