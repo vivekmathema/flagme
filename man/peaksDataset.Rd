@@ -6,6 +6,7 @@
 \alias{peaksDataset}
 \alias{show,peaksDataset-method}
 \alias{plot,peaksDataset-method}
+\alias{plot,peaksDataset,ANY-method}
 
 
 

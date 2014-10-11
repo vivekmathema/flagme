@@ -6,6 +6,7 @@
 \alias{clusterAlignment-plot}
 \alias{show,clusterAlignment-method}
 \alias{plot,clusterAlignment-method}
+\alias{plot,clusterAlignment,ANY-method}
 
 \title{Data Structure for a collection of all pairwise alignments of GCMS runs}
 

@@ -6,6 +6,7 @@
 \alias{peaksAlignment}
 \alias{show,peaksAlignment-method}
 \alias{plot,peaksAlignment-method}
+\alias{plot,peaksAlignment,ANY-method}
 
 \title{Data Structure for pairwise alignment of 2 GCMS samples}
 
