@@ -13,7 +13,7 @@ addXCMSPeaks <- function(files, object, peakPicking=c('cwt','mF'), ...){
                                     min(length(xr@scantime), which(xr@scantime > rtrange[2])[1] - 1, na.rm=TRUE))
                      ## peak picking
                      if(peakPicking == 'cwt'){
-                         s <- xcmsSet(x, method='centWave', peakwidth=c(5,35),
+                         s <- xcmsSet(x, method='centWave', ## peakwidth=c(5,35),
                                       prefilter=c(3,100), scanrange=scanRange, integrate=1,
                                       mzdiff=-0.001, fitgauss=TRUE, ...)
                      }
