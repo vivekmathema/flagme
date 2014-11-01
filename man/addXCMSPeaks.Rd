@@ -54,7 +54,7 @@ cdfFiles <- dir(gcmsPath, "CDF", full=TRUE)
 
 # create a 'peaksDataset' object and add XCMS peaks to it
 pd <- peaksDataset(cdfFiles[1], mz=seq(50,550), rtrange=c(7.5,8.5))
-pd <- addXCMSPeaks(cdfFiles[1], pd, peakPicking=c('cwt'))
+pd <- addXCMSPeaks(cdfFiles[1], pd, peakPicking=c('mF'))
 }
 
 \keyword{manip}
