@@ -36,3 +36,14 @@ representation(clusterAlignmentList="list",progressiveAlignmentList="list",
 timeDiff="list",impute="list",betweenAlignment="betweenAlignment")
 )
 
+
+# setClassUnion("align",   c('matrix',   'data.frame'))
+# setClass(Class='correlationAlignment',
+#          slots=c(Alignment='align', Center='character'))
+
+setClass(Class='correlationAlignment',
+         slots=c(Alignment='data.frame', Center='character'))
+
+
+
+

@@ -6,6 +6,7 @@ static const R_CMethodDef cMethods[]  = {
   {"dp",(DL_FUNC)&dp,8},
   {"cos_ndp_himem", (DL_FUNC)&cos_ndp_himem,9},
   {"cos_ndp_lowmem", (DL_FUNC)&cos_ndp_lowmem,10},
+  {"pearson", (DL_FUNC)&pearson,4}, /* il numero rappresenta il numero delle variabili della funzione */
   {NULL, NULL, 0}
 };
 

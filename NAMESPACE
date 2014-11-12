@@ -12,8 +12,8 @@ importFrom("gplots", "colorpanel")
 importFrom("graphics", "axis", "image", "lines", "matplot", "plot",
            "points", "text")
 importFrom("stats", "approx", "as.dist", "contr.sum", "cutree", "dist",
-           "hclust", "median")
+           "hclust", "median", 'cor')
 importFrom("utils", "read.table")
-importFrom("xcms", "xcmsRaw")
+importFrom("xcms", "xcmsRaw", 'xcmsSet')
 importFrom("CAMERA", "annotate", "getpspectra")
 importFrom('gcspikelite')
