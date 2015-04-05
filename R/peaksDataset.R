@@ -1,38 +1,100 @@
 
-peaksDataset<-function(fns=dir(,"[Cc][Dd][Ff]"),verbose=TRUE,mz=seq(50,550),rtDivide=60,rtrange=NULL) {
-  rawdata<-vector("list",length(fns))
-  rawrt<-vector("list",length(fns))
-  for(i in 1:length(fns)) {
-    if (verbose)
-      cat(" Reading ", fns[i],"\n")
-    a<-xcmsRaw(fns[i])
-	if (is.null(mz))
-	  mz<-seq(a@mzrange[1],a@mzrange[2])
-    this.mz<-seq(a@mzrange[1],a@mzrange[2])
-	rawrt[[i]]<-a@scantime/rtDivide
-	nc<-length(rawrt[[i]])
-    if(length(rtrange)==2) {
-      w<-which(rawrt[[i]] >= rtrange[1] & rawrt[[i]] <= rtrange[2])
-	  rawrt[[i]]<-rawrt[[i]][w]
-	} else {
-	  w<-seq(1,nc)
-	}
-	rawdata[[i]]<-a@env$profile[,w]
-	rm(a)
-	if (length(this.mz)!=length(mz)) {
-	  d<-matrix(0,nrow=length(mz),ncol=length(w))
-	  d[match(this.mz,mz),]<-rawdata[[i]]
-	  rawdata[[i]]<-d
-	}
-  }
-  gc()
-  nm<-lapply(fns,FUN=function(u) { sp<-strsplit(u,split="/")[[1]]; sp[length(sp)]})
-  nm<-sub(".CDF","",nm)
-  names(rawdata)<-names(rawrt)<-nm
-  #d<-list(mz=mz,files=fns,rawdata=rawdata,rawrt=rawrt)
-  #new("peaksDataset",d)
-  new("peaksDataset",rawdata=rawdata,rawrt=rawrt,mz=mz,files=fns)
+## peaksDataset<-function(fns=dir(,"[Cc][Dd][Ff]"),verbose=TRUE,mz=seq(50,550),rtDivide=60,rtrange=NULL) {
+##   rawdata<-vector("list",length(fns))
+##   rawrt<-vector("list",length(fns))
+##   for(i in 1:length(fns)) {
+##     if (verbose)
+##       cat(" Reading ", fns[i],"\n")
+##     a<-xcmsRaw(fns[i])
+## 	if (is.null(mz))
+## 	  mz<-seq(a@mzrange[1],a@mzrange[2])
+##     this.mz<-seq(a@mzrange[1],a@mzrange[2])
+## 	rawrt[[i]]<-a@scantime/rtDivide
+## 	nc<-length(rawrt[[i]])
+##     if(length(rtrange)==2) {
+##       w<-which(rawrt[[i]] >= rtrange[1] & rawrt[[i]] <= rtrange[2])
+## 	  rawrt[[i]]<-rawrt[[i]][w]
+## 	} else {
+## 	  w<-seq(1,nc)
+## 	}
+## 	rawdata[[i]]<-a@env$profile[,w]
+## 	rm(a)
+## 	if (length(this.mz)!=length(mz)) {
+## 	  d<-matrix(0,nrow=length(mz),ncol=length(w))
+## 	  d[match(this.mz,mz),]<-rawdata[[i]]
+## 	  rawdata[[i]]<-d
+## 	}
+##   }
+##   gc()
+##   nm<-lapply(fns,FUN=function(u) { sp<-strsplit(u,split="/")[[1]]; sp[length(sp)]})
+##   nm<-sub(".CDF","",nm)
+##   names(rawdata)<-names(rawrt)<-nm
+##   #d<-list(mz=mz,files=fns,rawdata=rawdata,rawrt=rawrt)
+##   #new("peaksDataset",d)
+##   new("peaksDataset",rawdata=rawdata,rawrt=rawrt,mz=mz,files=fns)
+## }
+
+peaksDataset <- function(fns=dir(,"[Cc][Dd][Ff]"), verbose=TRUE,
+                         mz=seq(50,550), rtDivide=60, rtrange=NULL)
+{
+    rawdata <- vector("list", length(fns))
+    rawrt <- vector("list", length(fns))
+    for(i in 1:length(fns))
+    {
+        if(verbose)
+            cat(" Reading ", fns[i],"\n")
+        a <- xcmsRaw(fns[i])
+        if(is.null(mz) == TRUE)
+        {
+            mz <- seq(a@mzrange[1], a@mzrange[2])
+            this.mz <- seq(a@mzrange[1], a@mzrange[2])
+        }
+        else 
+        {
+            this.mz <- mz
+        }
+        rawrt[[i]] <- a@scantime/rtDivide
+        nc <- length(rawrt[[i]])
+        if(length(rtrange) == 2)
+        {
+            w <- which(rawrt[[i]] >= rtrange[1] & rawrt[[i]] <= rtrange[2])
+            rawrt[[i]] <- rawrt[[i]][w]
+        }
+        else
+        {
+            w <- seq(1, nc)
+        }
+        rawdata[[i]] <- a@env$profile[,w]
+        rm(a) ## alleggerisco output
+        if(length(this.mz)!= length(mz))
+        {
+            d <- matrix(0, nrow=length(mz), ncol=length(w))
+            ## bug feb2015
+            # il problema si verifica quando utilizzo un range di massa
+            # inferiore a quello dell'acquisizione effettuata dallo
+            # spettrometro. 
+            #
+            # provo ad escludere NA 
+            m <- match(this.mz, mz)
+            mcl <- m[which(m != is.na(match(this.mz, mz)))]
+            d[mcl,] <- rawdata[[i]] ## bug
+            ###
+            ## d[match(this.mz, mz),] <- rawdata[[i]] ## bug
+            rawdata[[i]] <- d
+        }
+    }
+    gc()
+    nm <- lapply(fns, FUN=function(u){
+        sp <- strsplit(u, split="/")[[1]]; sp[length(sp)]
+    }
+                 )
+    nm <- sub(".CDF", "", nm)
+    names(rawdata) <- names(rawrt) <- nm
+    # d <- list(mz=mz, files=fns, rawdata=rawdata, rawrt=rawrt)
+    # new("peaksDataset",d)
+    new("peaksDataset", rawdata=rawdata, rawrt=rawrt, mz=mz, files=fns)
 }
+
 
 .plotpD<-function(object,runs=1:length(object@rawdata),mzind=1:nrow(object@rawdata[[1]]),mind=NULL,plotSampleLabels=TRUE,calcGlobalMax=FALSE,peakCex=0.8,plotPeaks=TRUE,plotPeakBoundaries=FALSE,plotPeakLabels=FALSE,plotMergedPeakLabels=TRUE,mlwd=3,usePeaks=TRUE,plotAcrossRuns=FALSE,overlap=F,rtrange=NULL,cols=NULL,thin=1,max.near=median(object@rawrt[[1]]),how.near=50,scale.up=1,...) {
   # only specific one of ma or runs
