@@ -16,94 +16,113 @@
 
 \begin{document}
 
-%\VignetteIndexEntry{Using flagme -- Fragment-level analysis of GCMS-based metabolomics data}
+%\VignetteIndexEntry{Using flagme -- Fragment-level analysis of GC-MS-based metabolomics data}
 
-\title{\texttt{flagme}: Fragment-level analysis of \\ GCMS-based metabolomics data}
-\author{Mark Robinson \\ \texttt{mrobinson@wehi.edu.au}}
+\title{\texttt{flagme}: Fragment-level analysis of \\ GC-MS-based 
+  metabolomics data}
+\author{Mark Robinson \\ \texttt{mrobinson@wehi.edu.au} \\ Riccardo  
+  Romoli \\ \texttt{riccardo.romoli@unifi.it}} 
 \maketitle
 
+
 \section{Introduction}
-
 \noindent This document gives a brief introduction to the
-\texttt{flagme} package, which is designed to process, visualize and
-statistically analyze sets of GCMS samples.  The ideas discussed here
-were originally designed with GCMS-based metabolomics in mind, but
+\texttt{flagme} package, which is designed to process, visualise and
+statistically analyze sets of GC-MS samples. The ideas discussed here
+were originally designed with GC-MS-based metabolomics in mind, but
 indeed some of the methods and visualizations could be useful for
-LC-MSMS datasets.  The {\em fragment-level analysis} though, takes
+LC-MS data sets. The {\em fragment-level analysis} though, takes
 advantage of the rich fragmentation patterns observed from electron
-impact ionization. 
+interaction (EI) ionization. 
 
-There are many aspects of data processing for GCMS data.  Generally,
+There are many aspects of data processing for GC-MS data. Generally,
 algorithms are run separately on each sample to detect features, or
-{\em peaks} (e.g. AMDIS).  Due to retention time shifts from
+{\em peaks} (e.g. AMDIS). Due to retention time shifts from
 run-to-run, an alignment algorithm is employed to allow the matching
 of the same feature across multiple samples.  Alternatively, if known
 standards are introduced to the samples, retention {\em indices} can
-be computed for each peak and used for alignment.  After peaks are
+be computed for each peak and used for alignment. After peaks are
 matched across all samples, further processing steps are employed to
 create a matrix of abundances, leading into detecting differences in
 abundance. 
 
 Many of these data processing steps are prone to errors and they often
-tend to be black boxes.  But, with effective exploratory data
+tend to be black boxes. But, with effective exploratory data
 analysis, many of the pitfalls can be avoided and any problems can be
-fixed before proceeding to the downstream statistical analysis.  The
+fixed before proceeding to the downstream statistical analysis. The
 package provides various visualizations to ensure the methods applied
 are not black boxes. 
 
 The \texttt{flagme} package gives a complete suite of methods to go
-through all common stages of data processing.  In addition, R is
+through all common stages of data processing. In addition, R is
 especially well suited to the downstream data analysis tasks since it
 is very rich in analysis tools and has excellent visualization
-capabilities.  In addition, it is freely available
+capabilities. In addition, it is freely available
 (\texttt{www.r-project.org}), extensible and there is a growing
-community of users and developers.  For routine analyses, graphical
+community of users and developers. For routine analyses, graphical
 user interfaces could be designed. 
 
-\section{Reading and visualizing GCMS data}
 
+\section{Reading and visualizing GC-MS data}
 To run these examples, you must have the \texttt{gcspikelite} package
-installed.  This data package contains several GCMS samples from a
+installed.  This data package contains several GC-MS samples from a
 spike-in experiment we designed to interrogate data processing
 methods.  So, first, we load the packages: 
 
-<<libraries,echo=FALSE>>=
+<<libraries, echo=FALSE>>=
 require(gcspikelite)
 library(flagme)
 @
 
 To load the data and corresponding peak detection results, we simply
-create vectors of the filenames and create a \texttt{peakDataset}
+create vectors of the file-names and create a \texttt{peakDataset}
 object. Note that we can speed up the import time by setting the
 retention time range to a subset of the elution, as below: 
 
 <<rawdata>>=
-gcmsPath<-paste(find.package("gcspikelite"),"data",sep="/")
+gcmsPath <- paste(find.package("gcspikelite"), "data", sep="/")
 data(targets)
-cdfFiles<-paste(gcmsPath,targets$FileName,sep="/")
-eluFiles<-gsub("CDF","ELU",cdfFiles)
-pd<-peaksDataset(cdfFiles,mz=seq(50,550),rtrange=c(7.5,8.5))
-pd<-addAMDISPeaks(pd,eluFiles)
+cdfFiles <- paste(gcmsPath, targets$FileName, sep="/")
+eluFiles <- gsub("CDF", "ELU", cdfFiles)
+pd <- peaksDataset(cdfFiles, mz=seq(50,550), rtrange=c(7.5,8.5))
+pd <- addAMDISPeaks(pd, eluFiles)
 pd
 @
 
 Here, we have added peaks from AMDIS, a well known and mature
 algorithm for deconvolution of GC-MS data. For GC-TOF-MS data, we have
 implemented a parser for the \texttt{ChromaTOF} output (see the
-analogous \texttt{addChromaTOFPeaks} function). Support for XMCS or
-MzMine may be added in the future. Ask the author if another detection
-result format is desired as the parsers are generally easy to design. 
+analogous \texttt{addChromaTOFPeaks} function). The
+\texttt{addXCMSPeaks} allows to use all the XCMS peak-picking
+algorithms; using this approach it is also possible to elaborate the
+raw data file from within R instead of using an external software.
+%% Support for XMCS or MzMine may be added in the future. Ask the author
+%% if another detection result format is desired as the parsers are
+%% generally easy to design.   
+In particular the function reads the raw data using XCMS, group each extracted ion
+according to their retention time using CAMERA and attaches them to an
+already created \texttt{peaksDataset} object:
 
-Regardless of platform and peak detection algorithm, a useful visualization of a set of samples is the set of total 
-ion currents (TIC), or extracted ion currents (XICs). To view TICs,
-you can call:  
+<<addXCMS>>=
+pd.2 <- peaksDataset(cdfFiles[1:3], mz=seq(50,550), rtrange=c(7.5,8.5))
+pd.2 <- addXCMSPeaks(cdfFiles[1:3], pd.2, peakPicking=c('mF'),
+                     snthresh=3, fwhm=4, step=1, steps=2, mzdiff=0.5)
+pd.2
+@ 
 
-<<plotexample1,fig=TRUE,width=9,height=7>>=
-plot(pd,rtrange=c(7.5,8.5),plotPeaks=TRUE,plotPeakLabels=TRUE,max.near=8,how.near=.5,col=rep(c("blue","red","black"),each=3))
+The possibility to work using computer cluster will be added in the future. 
+
+Regardless of platform and peak detection algorithm, a useful
+visualization of a set of samples is the set of total ion currents
+(TIC), or extracted ion currents (XICs). To view TICs, you can call:
+
+<<plotexample1, fig=TRUE, width=9, height=7>>=
+plot(pd, rtrange=c(7.5,8.5), plotPeaks=TRUE, plotPeakLabels=TRUE,
+     max.near=8, how.near=0.5, col=rep(c("blue","red","black"), each=3))
 @
 
 Note here the little {\em hashes} represent the detected peaks and are
-labeled with an integer index. One of  the main challenges is to match
+labelled with an integer index. One of the main challenges is to match
 these peak detections across several samples, given that the appear at
 slightly different times in different runs.
 
@@ -114,26 +133,25 @@ mass-to-charge values) that you want to plot through the
 ions are of interest (e.g. \texttt{mzind=c(24,25,98,99)}). 
 
 There are several other features within the \texttt{plot} command on
-\texttt{peaksDataset} objects that can be useful.  See \texttt{?plot}
+\texttt{peaksDataset} objects that can be useful. See \texttt{?plot}
 (and select the flagme version) for full details. 
 
 Another useful visualization, at least for individual samples, is a 2D
-heatmap of intensity.  Such plots can be enlightening, especially when
+heatmap of intensity. Such plots can be enlightening, especially when
 peak detection results are overlaid. For example (with detected
 fragment peaks from AMDIS shown in white): 
 
 <<plotexample2,fig=TRUE,width=9,height=7>>=
-r<-1
-plotImage(pd,run=r,rtrange=c(7.5,8.5),main="")
-v<-which(pd@peaksdata[[r]]>0,arr.ind=TRUE) # find detected peaks
+r <- 1
+plotImage(pd, run=r, rtrange=c(7.5,8.5), main="")
+v <- which(pd@peaksdata[[r]] > 0, arr.ind=TRUE) # find detected peaks
 abline(v=pd@peaksrt[[r]])
-points(pd@peaksrt[[r]][v[,2]],pd@mz[v[,1]],pch=19,cex=.6,col="white")
+points(pd@peaksrt[[r]][v[,2]], pd@mz[v[,1]], pch=19, cex=.6, col="white")
 @
 
 
 \section{Pairwise alignment with dynamic programming algorithm}
-
-One of the first challenges of GCMS data is the matching of detected
+One of the first challenges of GC-MS data is the matching of detected
 peaks (i.e. metabolites) across several samples. Although gas
 chromatography is quite robust, there can be some drift in the elution
 time of the same analyte from run to run. We have devised a strategy,
@@ -143,19 +161,19 @@ similarity in retention time, without requiring the identity of each
 peak; this matching uses the data alone. If each sample gives a `peak
 list' of the detected peaks (such as that from AMDIS that we have
 attached to our \texttt{peaksDataset} object), the challenge is to
-introduce gaps into these lists such that they are best aligned.  From
+introduce gaps into these lists such that they are best aligned. From
 this a matrix of retention times or a matrix of peak abundances can be
 extracted for further statistical analysis, visualization and
 interpretation. For this matching, we created a procedure analogous to
 a multiple {\em sequence} alignment. 
 
 To highlight the dynamic programming-based alignment strategy, we
-first illustrate a pairwise alignment of two peak lists.  This example
+first illustrate a pairwise alignment of two peak lists. This example
 also illustrates the selection of parameters necessary for the
-alignment.  From the data read in previously, let us consider the
+alignment. From the data read in previously, let us consider the
 alignment of two samples, denoted \texttt{0709\_468} and
-\texttt{0709\_474}.  First, a similarity matrix for two samples is
-calculated.  This is calculated based on a scoring function and takes
+\texttt{0709\_474}. First, a similarity matrix for two samples is
+calculated. This is calculated based on a scoring function and takes
 into account the similarity in retention time and in the similarity of
 the apex spectra, according to: 
 \[
@@ -166,7 +184,7 @@ S_{ij}(D) = \frac{\sum_{k=1}^K x_{ik} y_{jk}}{\sqrt{ \sum_{k=1}^K
 \noindent where $i$ is the index of the peak in the first sample and
 $j$ is the index of the peak in the second sample, $\mathbf{x}_i$ and
 $\mathbf{y}_j$ are the spectra vectors and $t_i$ and $t_j$ are their
-respective retention times.  As you can see, there are two components
+respective retention times. As you can see, there are two components
 to the similarity: spectra similarity (left term) and similarity in
 retention time (right term). Of course, other metrics for spectra
 similarity are feasible. Ask the author if you want to see other
@@ -177,25 +195,28 @@ The peak alignment algorithm, much like sequence alignments, requires
 a \texttt{gap} parameter to be set, here a number between 0 and 1.  A
 high gap penalty discourages gaps when matching the two lists of peaks
 and a low gap penalty allows gaps at a very low {\em cost}.  We find
-that a gap penalty in the middle range (0.4-0.6) works well for GCMS
+that a gap penalty in the middle range (0.4-0.6) works well for GC-MS
 peak matching.  Another parameter, \texttt{D}, modulates the impact of
-the difference in retention time penalty.  A large value for
-\texttt{D} essentially eliminates the effect.  Generally, we set this
+the difference in retention time penalty. A large value for
+\texttt{D} essentially eliminates the effect. Generally, we set this
 parameter to be a bit larger than the average width of a peak,
 allowing a little flexibility for retention time shifts between
-samples.  Keep in mind the \texttt{D} parameter should be set on the
+samples. Keep in mind the \texttt{D} parameter should be set on the
 scale (i.e. seconds or minutes) of the \texttt{peaksrt} slot of the
-\texttt{peaksDataset} object.  The next example shows the effect of
+\texttt{peaksDataset} object. The next example shows the effect of
 the \texttt{gap} and \texttt{D} penalty on the matching of a small
 ranges of peaks. 
 
-<<pairwisealignexample,fig=TRUE,width=7,height=7>>=
-Ds<-c(0.1,10,0.1,0.1)
-gaps<-c(0.5,0.5,0.1,0.9)
-par(mfrow=c(2,2),mai=c(0.8466,0.4806,0.4806,0.1486))
-for(i in 1:4) {
-  pa<-peaksAlignment(pd@peaksdata[[1]],pd@peaksdata[[2]],pd@peaksrt[[1]],pd@peaksrt[[2]],D=Ds[i],gap=gaps[i])
-  plot(pa,xlim=c(0,17),ylim=c(0,16),matchCol="yellow",main=paste("D=",Ds[i]," gap=",gaps[i],sep=""))
+<<pairwisealignexample, fig=TRUE, width=7, height=7>>=
+Ds <- c(0.1, 10, 0.1, 0.1)
+gaps <- c(0.5, 0.5, 0.1, 0.9)
+par(mfrow=c(2,2), mai=c(0.8466,0.4806,0.4806,0.1486))
+for(i in 1:4){
+  pa <- peaksAlignment(pd@peaksdata[[1]], pd@peaksdata[[2]],
+                       pd@peaksrt[[1]], pd@peaksrt[[2]], D=Ds[i],
+                       gap=gaps[i]) 
+  plot(pa, xlim=c(0, 17), ylim=c(0, 16), matchCol="yellow",
+       main=paste("D=", Ds[i], " gap=", gaps[i], sep=""))
 }
 @
 
@@ -209,12 +230,12 @@ convincing results. It does introduce a new set of challenges in terms
 of highlighting differentially abundant metabolites. However, in the
 \texttt{peaksAlignment} routine above (and those mentioned below), you
 can set \texttt{usePeaks=FALSE} in order to do {\em scan}-based
-alignments instead of {\em peak}-based alignments.  In addition, the
+alignments instead of {\em peak}-based alignments. In addition, the
 \texttt{flagme} package may be useful simply for its bare-bones
 dynamic programming algorithm. 
 
-\subsection{Normalizing retention time score to drift estimates}
 
+\subsection{Normalizing retention time score to drift estimates}
 In what is mentioned above for pairwise alignments, we are penalizing
 for differences in retention times that are non-zero. But, as you can
 see from the TICs, some differences in retention time are
@@ -228,8 +249,8 @@ first sample and peak $j$ of the second sample.
 
 More details coming soon.
 
-\subsection{Imputing location of undetected peaks}
 
+\subsection{Imputing location of undetected peaks}
 One goal of the alignment leading into downstream data analyses is the
 generation of a table of abundances for each metabolite across all
 samples. As you can see from the TICs above, there are some low
@@ -245,22 +266,24 @@ arbitrary values.
 
 More details coming soon.
 
-\section{Multiple alignment of several experimental groups}
 
+\section{Multiple alignment of several experimental groups}
 Next, we discuss the multiple alignment of peaks across many
 samples. With replicates, we typically do an alignment within
-replicates, then combine these together into a summarized form.  This
-cuts down on the computational cost.  For example, consider 2 sets of
-samples, each with 5 replicates.  Aligning first within replicates
+replicates, then combine these together into a summarized form. This
+cuts down on the computational cost. For example, consider 2 sets of
+samples, each with 5 replicates. Aligning first within replicates
 requires 10+10+1 total alignments whereas an all-pairwise alignment
-requires 45 pairwise alignments.  In addition, this allows some
+requires 45 pairwise alignments. In addition, this allows some
 flexibility in setting different gap and distance penalty parameters
-for the {\em within} alignment and {\em between} alignment.  An
+for the {\em within} alignment and {\em between} alignment. An
 example follows. 
 
 <<multiplealignment>>=
 print(targets)
-ma<-multipleAlignment(pd,group=targets$Group,wn.gap=0.5,wn.D=.05,bw.gap=.6,bw.D=0.05,usePeaks=TRUE,filterMin=2,df=50,verbose=FALSE)
+ma <- multipleAlignment(pd, group=targets$Group, wn.gap=0.5, wn.D=.05,
+                        bw.gap=.6, bw.D=0.05, usePeaks=TRUE,
+                        filterMin=2, df=50, verbose=FALSE)
 ma
 @
 
@@ -269,11 +292,49 @@ alignment procedure are given.  Next, we can take the alignment
 results and overlay it onto the TICs, allowing a visual inspection. 
 
 <<multiplealignmentfig,fig=TRUE,width=9,height=7>>=
-plot(pd,rtrange=c(7.5,8.5),runs=ma@betweenAlignment@runs,mind=ma@betweenAlignment@ind,plotPeaks=TRUE,plotPeakLabels=TRUE,max.near=8,how.near=.5,col=rep(c("blue","red","black"),each=3))
+plot(pd, rtrange=c(7.5,8.5), runs=ma@betweenAlignment@runs,
+     mind=ma@betweenAlignment@ind, plotPeaks=TRUE,
+     plotPeakLabels=TRUE, max.near=8, how.near=.5,
+     col=rep(c("blue","red","black"), each=3))
 @
 
-\subsection{Gathering results}
 
+\section{Correlation Alignment algorithm}
+Another approach, represented by the \texttt{correlationAlignment}
+function, is to use a modified form of the Pearson correlation
+algorithm. After the correlation between two samples is calculated, a
+penalization coefficient, based on the retention time differences, is
+applied to the result. It is also possible to set a retention time
+range in which the penalization is 0, this because in gas
+chromatography we can have a little deviation in the retention time of
+the metabolite so, based on the experimental data, we can choose the
+retention time window for the penalization coefficient being applied.
+
+<<correlationAlignment>>=
+mp <- correlationAlignment(object=pd.2, thr=0.85, D=20, penality=0.2,
+                           normalize=TRUE, minFilter=1)
+mp
+@ 
+
+\noindent where \texttt{thr} represent correlation threshold from 0
+(min) to 1 (max); \texttt{D} represent the retention time window in
+seconds; \texttt{penality} represent the penality inflicted to a match
+between two peaks when the retention time difference exceed the
+parameter \texttt{D}; \texttt{normalize} is about the peak
+normalization-to-100 before the correlation is calculated;
+\texttt{minFilter} give the opportunity to exclude from the resulting
+correlation matrix each feature that in represented in our samples
+less time than this value. The value of minFilter must be smaller than
+the number of samples. 
+
+The correlation-based peak alignment for multiple GC-MS
+peak lists uses a center-star technique to the alignment of the
+peaks. The combination of the \texttt{D} and \texttt{penality} parameters
+allow the users to force the algorithm to match the peaks close to the
+reference. The \texttt{thr} parameter control the matching factor.
+
+
+\subsection{Gathering results}
 The alignment results can be extracted from the \texttt{multipleAlignment} object as:
 <<multiplealignmentres>>=
 ma@betweenAlignment@runs
@@ -294,19 +355,19 @@ a common scale.  Instead, the peaks are matched to each other on their
 original scale).  For example: 
 
 <<alignmentres>>=
-outList<-gatherInfo(pd,ma)
+outList <- gatherInfo(pd,ma)
 outList[[8]]
-rtmat<-matrix(unlist(lapply(outList,.subset,"rt"),use.names=FALSE),nr=length(outList),byrow=TRUE)
-colnames(rtmat)<-names(outList[[1]]$rt); rownames(rtmat)<-1:nrow(rtmat)
-round(rtmat,3)
+rtmat <- matrix(unlist(lapply(outList,.subset,"rt"), use.names=FALSE),
+                nr=length(outList), byrow=TRUE)
+colnames(rtmat) <- names(outList[[1]]$rt); rownames(rtmat) <- 1:nrow(rtmat)
+round(rtmat, 3)
 @
 
 
 \section{Future improvements and extension}
-
 There are many procedures that we have implemented in our
-investigation of GCMS data, but have not made part of the package just
-yet.  Some of the most useful procedures will be released, such as: 
+investigation of GC-MS data, but have not made part of the package just
+yet. Some of the most useful procedures will be released, such as: 
 
 \begin{enumerate}
 
@@ -354,5 +415,3 @@ date()
 @
 
 \end{document}
-
-
