@@ -1,8 +1,8 @@
 Package: flagme
-Version: 1.23.4
+Version: 1.23.5
 Date: 2015/04/06
 Title: Analysis of Metabolomics GC/MS Data
-Author: Mark Robinson <mark.robinson@imls.uzh.ch>
+Author: Mark Robinson <mark.robinson@imls.uzh.ch>, Riccardo Romoli <riccardo.romoli@unifi.it>
 Maintainer: Mark Robinson <mark.robinson@imls.uzh.ch>, Riccardo Romoli <riccardo.romoli@unifi.it>
 Depends: gcspikelite, xcms, CAMERA
 Imports: gplots, graphics, MASS, methods, SparseM, stats, utils
