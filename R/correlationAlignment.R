@@ -1,6 +1,3 @@
-## setClassUnion("align",   c('matrix',   'data.frame'))
-## setClass(Class='correlationAlignment', slots=c(Alignment='align',
-##                                                Center='character')) 
 
 setMethod("show",
           signature = "correlationAlignment",
@@ -12,64 +9,7 @@ setMethod("show",
               invisible(NULL)
           }
           )
-################################################################################
 
-
-## .corP <- function(object, idx1, idx2, D, penality, normalize){
-##     #
-##     D <- as.numeric(D) # time window in second
-##     pn <- as.numeric(penality)# penality if out of time window
-##     #
-##     Normalize <- function(j){
-##         n <- apply(j, 2, function(k){
-##             m <- k[which.max(k)]
-##             norm <- k/m*100
-##         })
-##     }
-##     #
-##     Rank <- function(u) {
-##         if (length(u) == 0L) 
-##             u
-##         else if (is.matrix(u)) {
-##             if (nrow(u) > 1L) 
-##                 apply(u, 2L, rank, na.last="keep")
-##             else row(u)
-##         }
-##         else rank(u, na.last="keep")
-##     }
-##     #
-##     if(normalize == TRUE){
-##         x <- Normalize(object@peaksdata[[idx1]])
-##         y <- Normalize(object@peaksdata[[idx2]])
-##     }else if(normalize == FALSE){
-##         x <- object@peaksdata[[idx1]]
-##         y <- object@peaksdata[[idx2]]
-##     }
-##     method <- c("pearson", "kendall", "spearman")
-##     ncx <- ncol(x)
-##     ncy <- ncol(y)
-##     r <- matrix(0, nrow=ncx, ncol=ncy)
-##     for (i in seq_len(ncx)) {
-##         for (j in seq_len(ncy)) {
-##             x2 <- x[, i]
-##             y2 <- y[, j]
-##             ok <- complete.cases(x2, y2)
-##             x2 <- rank(x2[ok])
-##             y2 <- rank(y2[ok])
-##             ## insert rt penality in seconds
-##             rtDiff <- object@peaksrt[[idx1]][i] - object@peaksrt[[idx2]][j]
-##             r[i, j] <- if (any(ok))
-##                            if(rtDiff <= D)
-##                                .Call(stats:::C_cor, x2, y2, 1L, method == 'kendall')
-##                            else .Call(stats:::C_cor, x2, y2, 1L, method == 'kendall')*pn
-##                        else NA
-##         }
-##     }
-##     rownames(r) <- colnames(x)
-##     colnames(r) <- colnames(y)
-##     return(r)
-## }
-################################################################################
 
 .corP <- function(object, idx1, idx2, D, penality, normalize){
     #
@@ -136,7 +76,6 @@ setMethod("show",
 }
 
 
-################################################################################
 correlationAlignment <- function(object, thr=0.85, D=20, penality=0.2,
                                  normalize=TRUE, minFilter=1){
     D <- as.numeric(D)
