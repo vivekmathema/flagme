@@ -1,4 +1,4 @@
-\name{correlatioAlignment}
+\name{correlationAlignment}
 
 %% \alias{correlationAlignment-class}
 %% \alias{correlationAlignment-show}
