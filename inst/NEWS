@@ -1,4 +1,9 @@
 ==========
+= 1.27.1 =
+==========
+o Bugs Fixed correlationAlignment()
+
+==========
 = 1.23.1 =
 ==========
 o Added new peaks alignment function (correlationAlignment)
