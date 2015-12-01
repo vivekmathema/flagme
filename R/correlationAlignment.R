@@ -120,12 +120,13 @@ setMethod("show",
             x2 <- rank(x2[ok])
             y2 <- rank(y2[ok])
             ## insert rt penality in seconds
-            rtDiff <- object@peaksrt[[idx1]][i] - object@peaksrt[[idx2]][j]
+            rtDiff <- object@peaksrt[[idx1]][i]*60 - object@peaksrt[[idx2]][j]*60 # retention time in seconds
+            rtDiff <- abs(rtDiff)
             r[i, j] <- if (any(ok))
                            if(rtDiff <= D)
                                pearson(x2, y2)
                            else 
-                               pearson(x2, y2) * pn
+                               pearson(x2, y2) - pn
                        else NA
         }
     }
