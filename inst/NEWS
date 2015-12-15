@@ -1,4 +1,9 @@
 ==========
+= 1.27.2 =
+==========
+o Bugs Fixed in m/z range parameter
+
+==========
 = 1.27.1 =
 ==========
 o Bugs Fixed correlationAlignment()

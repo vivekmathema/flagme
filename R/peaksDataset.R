@@ -6,6 +6,22 @@ peaksDataset <- function(fns=dir(, "[Cc][Dd][Ff]"), verbose=TRUE,
         if(verbose) 
             cat(" Reading ", fns[i], "\n")
         a <- xcmsRaw(fns[i])
+        D1 <- cbind.data.frame(mz=a@mzrange[1]:a@mzrange[2],
+                               a@env$profile)
+        D2 <- data.frame(mz=mz)
+        if(a@mzrange[1]-range(mz)[1] < 3 & a@mzrange[2]-range(mz)[2] <
+           3){
+            mrg <- merge(D1, D2, by='mz', all=TRUE)
+        }else{
+            mrg <- merge(D1, D2, by='mz', all=FALSE)
+        }# not a very clean approach. The problem is in the raw m/z;
+         # the possible cause is the centroid approx. diring the
+         # acquisition of the cgromatogram se all=TRUE funziona con
+         # mzrange= 50-550; se all=FALSE funziona con mzrange= 100-400 
+        mrg[is.na(mrg)] <- 0
+        rownames(mrg) <- 1:nrow(mrg)
+        colnames(mrg) <- 1:ncol(mrg)
+        a@env$profile <- data.matrix(mrg)
         a@mzrange <- range(mz) ## allows mzrange param without errors
         if(is.null(mz)) 
             mz <- seq(a@mzrange[1], a@mzrange[2])
@@ -34,7 +50,7 @@ peaksDataset <- function(fns=dir(, "[Cc][Dd][Ff]"), verbose=TRUE,
     nm <- sub(".CDF", "", nm)
     names(rawdata) <- names(rawrt) <- nm
     new("peaksDataset", rawdata=rawdata,
-        rawrt=rawrt, mz=mz, files= ns)
+        rawrt=rawrt, mz=mz, files=fns)
 }
 
 

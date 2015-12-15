@@ -50,19 +50,19 @@ Mark D Robinson (2008).  Methods for the analysis of gas chromatography - mass s
 require(gcspikelite)
 
 # paths and files
-gcmsPath<-paste(find.package("gcspikelite"),"data",sep="/")
-cdfFiles<-dir(gcmsPath,"CDF",full=TRUE)
-eluFiles<-dir(gcmsPath,"ELU",full=TRUE)
+gcmsPath <- paste(find.package("gcspikelite"),"data",sep="/")
+cdfFiles <- dir(gcmsPath,"CDF",full=TRUE)
+eluFiles <- dir(gcmsPath,"ELU",full=TRUE)
 
 # read data, peak detection results
-pd<-peaksDataset(cdfFiles[1:2],mz=seq(50,550),rtrange=c(7.5,8.5))
-pd<-addAMDISPeaks(pd,eluFiles[1:2])
+pd <- peaksDataset(cdfFiles[1:2],mz=seq(50,550),rtrange=c(7.5,8.5))
+pd <- addAMDISPeaks(pd,eluFiles[1:2])
 
 # pairwise alignment using all scans
-fullca<-clusterAlignment(pd, usePeaks = FALSE, df = 100)
+fullca <- clusterAlignment(pd, usePeaks=FALSE, df=100)
 
 # calculate retention time shifts
-timedf<-calcTimeDiffs(pd, fullca)
+timedf <- calcTimeDiffs(pd, fullca)
 }
 
 \keyword{manip}

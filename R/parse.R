@@ -1,5 +1,6 @@
 
 parseELU <- function(f, min.pc=0.01, mz=seq(50, 550), rt.cut=0.008, rtrange=NULL){
+##    options(warn=-1)
     mostart <- function(u, key = "MO") {
         which(substr(u, 1, 2) == key)
     }
@@ -13,7 +14,7 @@ parseELU <- function(f, min.pc=0.01, mz=seq(50, 550), rt.cut=0.008, rtrange=NULL
     rts <- as.numeric(gsub("RT", "", rts))
     starts <- which(substr(v[, 1], 1, 9) == "NUM PEAKS") + 1
     ends <- c(which(substr(v[, 1], 1, 5) == "NAME:")[-1] - 1, 
-        length(v[, 1]))
+              length(v[, 1]))
     if(length(rtrange) == 2){
         w <- which(rts >= rtrange[1] & rts <= rtrange[2])
         rts <- rts[w]
@@ -23,7 +24,7 @@ parseELU <- function(f, min.pc=0.01, mz=seq(50, 550), rt.cut=0.008, rtrange=NULL
         w <- seq(1, length(starts))
     }
     peaks <- matrix(0, nrow=length(mz), ncol=length(starts))
-    for(j in 1:length(starts)){
+    for(j in 1:length(starts)){## j <- 37 
         pks <- strsplit(paste(v[starts[j]:ends[j], 1], collapse=""), "\\)\\(")[[1]]
         pks[1] <- sub("\\(", "", pks[1])
         pks[length(pks)] <- sub("\\)", "", pks[length(pks)])
@@ -32,15 +33,22 @@ parseELU <- function(f, min.pc=0.01, mz=seq(50, 550), rt.cut=0.008, rtrange=NULL
         pks <- lapply(pks, function(u, split=" ") .subset2(strsplit(u, split), 1)[1])
         pks <- pks[aft]
         mzc <- as.numeric(unlist(lapply(pks, function(u, split=",") .subset2(strsplit(u, split), 1)[1])))
-        idx <- which(mzc < range(mz)[1] | mzc > range(mz)[2])# resize mz range 
-        mzc <- mzc[-idx] #
-        abn <- as.numeric(unlist(lapply(pks, function(u, split=",") .subset2(strsplit(u, split), 1)[2])))
-        abn <- abn[-idx] #
+        idx <- which(mzc < range(mz)[1] | mzc > range(mz)[2])# is
+                                        # there some m/z out of m/z
+                                        # range of the experiment?
+        if(length(idx) == 0){
+            abn <- as.numeric(unlist(lapply(pks, function(u, split=",") .subset2(strsplit(u, split), 1)[2])))
+        }else{
+            mzc <- mzc[-idx] #
+            abn <- as.numeric(unlist(lapply(pks, function(u, split=",") .subset2(strsplit(u, split), 1)[2])))
+            abn <- abn[-idx] #
+        }
         mzc <- mzc[abn > min.pc * max(abn)]
         abn <- abn[abn > min.pc * max(abn)]
         mt <- match(mzc, mz)
         mt <- mt[!is.na(mt)]
-        peaks[mt, j] <- abn
+        ## cat(j, '\n')
+        peaks[mt, j] <- abn        
     }
     v <- v[keep, ][w]
     v <- strsplit(v, "\\|")
