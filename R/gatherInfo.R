@@ -3,7 +3,7 @@ gatherInfo <- function(pD, obj, newind=NULL, method=c("apex"),
                        intensity.cut=.05){
     # correlationAlignment() data implementation
     # start 
-    if(class(obj) == 'correlationAlignment')
+    if(class(obj) == 'correlationAlignment'){
         # slot rt
         l.rt <- lapply(1:nrow(obj@Alignment), function(z){
             sapply(seq(along=obj@Alignment), function(x, y){
@@ -40,8 +40,8 @@ gatherInfo <- function(pD, obj, newind=NULL, method=c("apex"),
     })
     names(res) <- paste("feat", seq(along=res), sep='_')
     return(res)
-    ## end 
-    #
+        ## end
+    }
     # pind - indices of peaks
     # rind - indices of runs
     # newind ... comes from an imputation step, if at all.

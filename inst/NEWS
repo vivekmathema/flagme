@@ -1,7 +1,7 @@
 ==========
 = 1.27.3 =
 ==========
-o gatherInfo() now works well on correlationAlignment object
+o gatherInfo() now works on correlationAlignment object
 
 ==========
 = 1.27.2 =
