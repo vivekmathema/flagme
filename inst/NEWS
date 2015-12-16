@@ -1,4 +1,9 @@
 ==========
+= 1.27.3 =
+==========
+o gatherInfo() now works well on correlationAlignment object
+
+==========
 = 1.27.2 =
 ==========
 o Bugs Fixed in m/z range parameter
