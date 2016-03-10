@@ -11,35 +11,38 @@ gatherInfo <- function(pD, obj, newind=NULL, method=c("apex"),
                 r <- pD@peaksrt[[n]][obj@Alignment[y,x]]
             }, y=1:nrow(obj@Alignment))[z,]
         })
-    names(l.rt) <- sapply(l.rt, function(x){names(x) <- 'rt'})    
-    # slot data
-    l.d <- lapply(1:nrow(obj@Alignment), function(y){
-        rx <- lapply(1:ncol(obj@Alignment), function(x){
-            nam <- names(obj@Alignment)[x]
-            idx <- obj@Alignment[y,x]
-            if(is.na(idx) == FALSE){
-                dat <- pD@peaksdata[nam][1][[1]][,idx]
-            }else{
-                dat <- rep(NA, length(pD@peaksdata[nam][1][[1]][,idx]))
-            }
-            return(dat)
+        names(l.rt) <- sapply(l.rt, function(x){names(x) <- 'rt'})    
+        # slot data
+        l.d <- lapply(1:nrow(obj@Alignment), function(y){
+            rx <- lapply(1:ncol(obj@Alignment), function(x){
+                nam <- names(obj@Alignment)[x]
+                idx <- obj@Alignment[y,x]
+                if(is.na(idx) == FALSE){
+                    # dat <- pD@peaksdata[nam][1][[1]][,idx]
+                    # must match
+                    # the column name not the clolumn position
+                    dat <- pD@peaksdata[nam][1][[1]][,which(colnames(pD@peaksdata[nam][1][[1]]) == idx)]
+                }else{
+                    dat <- rep(NA, length(pD@peaksdata[nam][1][[1]][,idx]))
+                }
+                return(dat)
+            })
+            dd <- do.call(cbind, rx)
+            return(dd)
         })
-        dd <- do.call(cbind, rx)
-        return(dd)
-    })
-    names(l.d) <- sapply(l.d, function(x){names(x) <- 'data'})
-    # trace back raw id spectra
-    l.Raw <- lapply(1:nrow(obj@Alignment), function(x){
-        cbind.data.frame(Sample=colnames(obj@Alignment),
-                         rawID=as.numeric(obj@Alignment[x,]))
-    })
-    names(l.Raw) <- sapply(l.Raw, function(x){names(x) <- 'traceRaw'})
-    
-    res <- lapply(1:length(l.d), function(x){
-        c(l.Raw[x], l.rt[x], l.d[x]) 
-    })
-    names(res) <- paste("feat", seq(along=res), sep='_')
-    return(res)
+        names(l.d) <- sapply(l.d, function(x){names(x) <- 'data'})
+        # trace back raw id spectra
+        l.Raw <- lapply(1:nrow(obj@Alignment), function(x){
+            cbind.data.frame(Sample=colnames(obj@Alignment),
+                             rawID=as.numeric(obj@Alignment[x,]))
+        })
+        names(l.Raw) <- sapply(l.Raw, function(x){names(x) <- 'traceRaw'})
+        
+        res <- lapply(1:length(l.d), function(x){
+            c(l.Raw[x], l.rt[x], l.d[x]) 
+        })
+        names(res) <- paste("feat", seq(along=res), sep='_')
+        return(res)
         ## end
     }
     # pind - indices of peaks
