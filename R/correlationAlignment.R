@@ -99,6 +99,8 @@ correlationAlignment <- function(object, thr=0.85, D=20, penality=0.2,
         conf <- .corP(object, idx1=center, idx2=x, D=D,
                      penality=penality, normalize=normalize)
         ww <- which(conf > thr, arr.ind=TRUE) # row and col number
+        ww[,1] <- as.numeric(rownames(conf)) # return the spectrum id
+        ww[,2] <- as.numeric(colnames(conf)) # return the spectrum id
         colnames(ww) <- c(center, x)
         return(list(conf, ww, x)) # poi levare da return sia x che conf
     })
