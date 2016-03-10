@@ -64,7 +64,8 @@ addXCMSPeaks <- function(files, object, peakPicking=c('cwt','mF'), ...){
                                spec
                            } 
                            ## bug due to a different mz range from
-                           ## peaksDataset() and addXCMS(); SOLVEDabu$z <- merge(spec, mz, by='mz',
+                           ## peaksDataset() and addXCMS(); SOLVED
+                           abu$z <- merge(spec, mz, by='mz',
                                           all=TRUE)[,area] ## THE GOAL
                        }
                                      )
