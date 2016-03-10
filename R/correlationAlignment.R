@@ -95,12 +95,17 @@ correlationAlignment <- function(object, thr=0.85, D=20, penality=0.2,
     # calculate correlation matrix; center riga della matrice
     fl <- names(object@peaksind[which(names(object@peaksind) != center)])# elimino center dai giochi
     list.conf <- lapply(fl, function(x){
-        ## conf <- cor(object@peaksdata[[center]], object@peaksdata[[x]])
+        
         conf <- .corP(object, idx1=center, idx2=x, D=D,
                      penality=penality, normalize=normalize)
         ww <- which(conf > thr, arr.ind=TRUE) # row and col number
-        ww[,1] <- as.numeric(rownames(conf)) # return the spectrum id
-        ww[,2] <- as.numeric(colnames(conf)) # return the spectrum id
+        ww<- as.data.frame(ww)
+        rnames <- as.numeric(rownames(conf))[ww[,1]]
+        ww[,1] <- rnames # return the spectrum id
+        cnames <- as.numeric(colnames(conf))[ww[,2]]
+        ww[,2] <- cnames # return the spectrum id
+        ## bug, matching non univoco        
+        ##
         colnames(ww) <- c(center, x)
         return(list(conf, ww, x)) # poi levare da return sia x che conf
     })

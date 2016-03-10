@@ -1,4 +1,11 @@
 ==========
+= 1.27.4 =
+==========
+o fix correlationAlignment() bug
+o fix mzrange bug in addXCMSpeaks()
+o fix gatherInfo() bug 
+
+==========
 = 1.27.3 =
 ==========
 o gatherInfo() now works on correlationAlignment object
