@@ -14,7 +14,7 @@ addXCMSPeaks <- function(files, object, peakPicking=c('cwt','mF'), ...){
                      ## peak picking
                      if(peakPicking == 'cwt'){
                          s <- xcmsSet(x, method='centWave', ## peakwidth=c(5,35),
-                                      prefilter=c(3,100), scanrange=scanRange, integrate=1,
+                                      prefilter=c(5,100), scanrange=scanRange, integrate=1,
                                       mzdiff=-0.001, fitgauss=TRUE, ...)
                      }
                      if(peakPicking == 'mF'){
@@ -22,7 +22,10 @@ addXCMSPeaks <- function(files, object, peakPicking=c('cwt','mF'), ...){
                                       ## step=0.5, steps=2, mzdiff=0.5,
                                       max=500, ...)
                      }
-                     ## deconvolution
+                     ## set mz range
+                     idx <- which(s@peaks[,"mz"] > min(object@mz) & s@peaks[,"mz"] < max(object@mz))
+                     s@peaks <- s@peaks[idx,]
+                     ##deconvolution
                      a <- annotate(s, perfwhm=0.6, max_peaks=500, quick=TRUE) 
                      return(a)
                  }, 
@@ -60,7 +63,8 @@ addXCMSPeaks <- function(files, object, peakPicking=c('cwt','mF'), ...){
                            } else {
                                spec
                            } 
-                           abu$z <- merge(spec, mz, by='mz',
+                           ## bug due to a different mz range from
+                           ## peaksDataset() and addXCMS(); SOLVEDabu$z <- merge(spec, mz, by='mz',
                                           all=TRUE)[,area] ## THE GOAL
                        }
                                      )
