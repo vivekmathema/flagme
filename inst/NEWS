@@ -1,35 +1,40 @@
 ==========
+= 1.27.5 =
+==========
+- Add retFatMatrix() function
+
+==========
 = 1.27.4 =
 ==========
-o fix correlationAlignment() bug
-o fix mzrange bug in addXCMSpeaks()
-o fix gatherInfo() bug 
+- fix correlationAlignment() bug
+- fix mzrange bug in addXCMSpeaks()
+- fix gatherInfo() bug 
 
 ==========
 = 1.27.3 =
 ==========
-o gatherInfo() now works on correlationAlignment object
+- gatherInfo() now works on correlationAlignment object
 
 ==========
 = 1.27.2 =
 ==========
-o Bugs Fixed in m/z range parameter
+- Bugs Fixed in m/z range parameter
 
 ==========
 = 1.27.1 =
 ==========
-o Bugs Fixed correlationAlignment()
-o Updated vignette
+- Bugs Fixed correlationAlignment()
+- Updated vignette
 
 ==========
 = 1.23.1 =
 ==========
-o Added new peaks alignment function (correlationAlignment)
+- Added new peaks alignment function (correlationAlignment)
 
 ===============================================
 =           0.5 SERIES                        =
 ===============================================
 
-o First release to Bioconductor (2.4) - includes basis classes and 
+- First release to Bioconductor (2.4) - includes basis classes and 
   methods for I/O, multiple alignment of GCMS peaks
   (from Robinson et al 2007, BMC Bioinformatics)
