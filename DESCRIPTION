@@ -12,5 +12,5 @@ License: LGPL (>= 2)
 Collate: 0classes.R clusterAlignment.R init.R multipleAlignment.R
         peaksAlignment.R progressiveAlignment.R betweenAlignment.R dp.R
         metrics.R parse.R peaksDataset.R gatherInfo.R plotFragments.R
-        rmaFitUnit.R addXCMSPeaks.R correlationAlignment.R
+        rmaFitUnit.R addXCMSPeaks.R correlationAlignment.R retFatMatrix.R
 biocViews: DifferentialExpression, MassSpectrometry
