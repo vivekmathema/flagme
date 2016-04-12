@@ -1,4 +1,16 @@
 ==========
+= 1.27.7 =
+==========
+- Add exportSpectra() function
+
+
+==========
+= 1.27.6 =
+==========
+- Add plotSpectra() function
+
+
+==========
 = 1.27.5 =
 ==========
 - Add retFatMatrix() function
