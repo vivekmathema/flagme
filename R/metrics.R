@@ -67,6 +67,7 @@ normDotProduct <- function (x1, x2, t1=NULL, t2=NULL, df=max(ncol(x1), ncol(x2))
 
 
 ## RR ##
+## retention time penalized normDotProd
 ndpRT <- function(s1, s2, t1, t2, D){
     
     Normalize <- function(j){
