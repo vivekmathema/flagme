@@ -109,7 +109,7 @@ dynRT <- function(S){
             trace[i] <- which(S[i,] == max(S[i,])) # RR
         }
     }
-
+    
     trace.mtx <- matrix(NA, nrow=nrow(S), ncol=2)  
     trace.mtx[,1] <- 1:nrow(S)
     trace[which(trace == 1)] <- NA

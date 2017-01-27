@@ -111,7 +111,8 @@ setMethod("decompress","peaksAlignment",
 
 peaksAlignment <- function(d1, d2, t1, t2, gap=0.5, D=50,
                            timedf=NULL, df=30, verbose=TRUE, 
-                           usePeaks=TRUE, compress=FALSE, metric=1, type=2){
+                           usePeaks=TRUE, compress=FALSE, metric=1,
+                           type=2, penality=0.2){
 
     ## r <- switch(metric,
     ##             normDotProduct(d1,d2,t1,t2,D=D,df=df+abs(ncol(d1)-ncol(d2)),timedf=timedf,verbose=verbose),  # metric=1
@@ -126,11 +127,11 @@ peaksAlignment <- function(d1, d2, t1, t2, gap=0.5, D=50,
     {
         D <- D/100
     }
-    
     r <- switch(metric,
                 normDotProduct(d1, d2, t1, t2, D=D, df=df+abs(ncol(d1)-ncol(d2)),
                                timedf=timedf, verbose=verbose),
-                ndpRT(s1=d1, s2=d2, t1, t2, D=D)
+                ndpRT(s1=d1, s2=d2, t1, t2, D=D),
+                corPrt(d1, d2, t1, t2, D=D, penality=penality)
                 )
     
     r[is.nan(r)] <- 1 ## remove NaN

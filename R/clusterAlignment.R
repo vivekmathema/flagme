@@ -19,7 +19,8 @@ function(object,verbose=TRUE,...) {
 })
 
 clusterAlignment <- function(pD, runs=1:length(pD@rawdata),
-                             timedf=NULL, usePeaks=TRUE, verbose=TRUE,...) {
+                             timedf=NULL, usePeaks=TRUE, verbose=TRUE,
+                             ...) {
     n <- length(runs)
     if(usePeaks)
         nr <- length(pD@peaksdata)
@@ -56,7 +57,9 @@ clusterAlignment <- function(pD, runs=1:length(pD@rawdata),
                                    pD@peaksrt[[run.j]],
                                    usePeaks=usePeaks,
                                    timedf=timedf[[count]],
-                                   verbose=verbose, ...)
+                                   verbose=verbose,
+                                   ## penality=penality,
+                                   ...)
              }
             else
             {
@@ -66,7 +69,9 @@ clusterAlignment <- function(pD, runs=1:length(pD@rawdata),
                                    pD@rawrt[[run.i]],
                                    pD@rawrt[[run.j]],
                                    usePeaks=usePeaks, timedf=NULL,
-                                   verbose=verbose, ...)
+                                   verbose=verbose,
+                                   ## penality=penality,
+                                   ...)
             }
             aligned[runs[i],runs[j]] <- aligned[runs[j],runs[i]] <- count
             dist[j,i] <- dist[i,j] <- alignments[[count]]@dist

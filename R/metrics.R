@@ -115,25 +115,21 @@ ndpRT <- function(s1, s2, t1, t2, D){
 
 
 ## correlation Alignment
-corP <- function(object, idx1, idx2, D, penality, normalize){
-    #
+corPrt <- function(d1, d2, t1, t2, D=D, penality=0.2){
     D <- as.numeric(D) # time window in second
     pn <- as.numeric(penality)# penality if out of time window
-    #
     pearson <- function(x,y){
         size <- length(x)
         cfun <- .C("pearson", size=as.integer(size), x=as.double(x),
                    y=as.double(y), result=double(1), PACKAGE='flagme')
         return(cfun[["result"]])
     }
-    #
     Normalize <- function(j){
         n <- apply(j, 2, function(k){
             m <- k[which.max(k)]
             norm <- k/m*100
         })
     }
-    #
     Rank <- function(u) {
         if (length(u) == 0L) 
             u
@@ -145,14 +141,10 @@ corP <- function(object, idx1, idx2, D, penality, normalize){
         else rank(u, na.last="keep")
     }
     #
-    if(normalize == TRUE){
-        x <- Normalize(object@peaksdata[[idx1]])
-        y <- Normalize(object@peaksdata[[idx2]])
-    }else if(normalize == FALSE){
-        x <- object@peaksdata[[idx1]]
-        y <- object@peaksdata[[idx2]]
-    }
-    method <- c("pearson", "kendall", "spearman")
+        x <- Normalize(d1)
+        y <- Normalize(d2)
+    
+    ## method <- c("pearson", "kendall", "spearman")
     ncx <- ncol(x)
     ncy <- ncol(y)
     r <- matrix(0, nrow=ncx, ncol=ncy)
@@ -164,7 +156,7 @@ corP <- function(object, idx1, idx2, D, penality, normalize){
             x2 <- rank(x2[ok])
             y2 <- rank(y2[ok])
             ## insert rt penality in seconds
-            rtDiff <- object@peaksrt[[idx1]][i]*60 - object@peaksrt[[idx2]][j]*60 # retention time in seconds
+            rtDiff <- t1[i]*60 - t2[j]*60 # retention time in seconds
             rtDiff <- abs(rtDiff)
             r[i, j] <- if (any(ok))
                            if(rtDiff <= D)
@@ -174,6 +166,17 @@ corP <- function(object, idx1, idx2, D, penality, normalize){
                        else NA
         }
     }
+
+    r <- apply(r, MARGIN=c(1,2), function(x){
+        if(x < 0.2)
+        {
+            x <- 0
+        }
+        else
+        {
+            x <- x
+        }
+    })
     rownames(r) <- colnames(x)
     colnames(r) <- colnames(y)
     return(r)
