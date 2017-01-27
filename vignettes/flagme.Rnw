@@ -214,7 +214,7 @@ par(mfrow=c(2,2), mai=c(0.8466,0.4806,0.4806,0.1486))
 for(i in 1:4){
   pa <- peaksAlignment(pd@peaksdata[[1]], pd@peaksdata[[2]],
                        pd@peaksrt[[1]], pd@peaksrt[[2]], D=Ds[i],
-                       gap=gaps[i]) 
+                       gap=gaps[i], metric=1, type=1) 
   plot(pa, xlim=c(0, 17), ylim=c(0, 16), matchCol="yellow",
        main=paste("D=", Ds[i], " gap=", gaps[i], sep=""))
 }
@@ -299,39 +299,39 @@ plot(pd, rtrange=c(7.5,8.5), runs=ma@betweenAlignment@runs,
 @
 
 
-\section{Correlation Alignment algorithm}
-Another approach, represented by the \texttt{correlationAlignment}
-function, is to use a modified form of the Pearson correlation
-algorithm. After the correlation between two samples is calculated, a
-penalization coefficient, based on the retention time differences, is
-applied to the result. It is also possible to set a retention time
-range in which the penalization is 0, this because in gas
-chromatography we can have a little deviation in the retention time of
-the metabolite so, based on the experimental data, we can choose the
-retention time window for the penalization coefficient being applied.
+% \section{Correlation Alignment algorithm}
+% Another approach, represented by the \texttt{correlationAlignment}
+% function, is to use a modified form of the Pearson correlation
+% algorithm. After the correlation between two samples is calculated, a
+% penalization coefficient, based on the retention time differences, is
+% applied to the result. It is also possible to set a retention time
+% range in which the penalization is 0, this because in gas
+% chromatography we can have a little deviation in the retention time of
+% the metabolite so, based on the experimental data, we can choose the
+% retention time window for the penalization coefficient being applied.
 
-<<correlationAlignment>>=
+<<correlationAlignment, eval=FALSE>>=
 mp <- correlationAlignment(object=pd.2, thr=0.85, D=20, penality=0.2,
                            normalize=TRUE, minFilter=1)
 mp
 @ 
 
-\noindent where \texttt{thr} represent correlation threshold from 0
-(min) to 1 (max); \texttt{D} represent the retention time window in
-seconds; \texttt{penality} represent the penality inflicted to a match
-between two peaks when the retention time difference exceed the
-parameter \texttt{D}; \texttt{normalize} is about the peak
-normalization-to-100 before the correlation is calculated;
-\texttt{minFilter} give the opportunity to exclude from the resulting
-correlation matrix each feature that in represented in our samples
-less time than this value. The value of minFilter must be smaller than
-the number of samples. 
+% \noindent where \texttt{thr} represent correlation threshold from 0
+% (min) to 1 (max); \texttt{D} represent the retention time window in
+% seconds; \texttt{penality} represent the penality inflicted to a match
+% between two peaks when the retention time difference exceed the
+% parameter \texttt{D}; \texttt{normalize} is about the peak
+% normalization-to-100 before the correlation is calculated;
+% \texttt{minFilter} give the opportunity to exclude from the resulting
+% correlation matrix each feature that in represented in our samples
+% less time than this value. The value of minFilter must be smaller than
+% the number of samples. 
 
-The correlation-based peak alignment for multiple GC-MS
-peak lists uses a center-star technique to the alignment of the
-peaks. The combination of the \texttt{D} and \texttt{penality} parameters
-allow the users to force the algorithm to match the peaks close to the
-reference. The \texttt{thr} parameter control the matching factor.
+% The correlation-based peak alignment for multiple GC-MS
+% peak lists uses a center-star technique to the alignment of the
+% peaks. The combination of the \texttt{D} and \texttt{penality} parameters
+% allow the users to force the algorithm to match the peaks close to the
+% reference. The \texttt{thr} parameter control the matching factor.
 
 
 \subsection{Gathering results}
@@ -370,41 +370,32 @@ investigation of GC-MS data, but have not made part of the package just
 yet. Some of the most useful procedures will be released, such as: 
 
 \begin{enumerate}
-
-\item Parsers for other peak detection algorithms (e.g. XCMS, MzMine)
-  and parsers for other alignment procedures (e.g. SpectConnect) and
-  perhaps retention indices procedures. 
-
-\item More convenient access to the alignment information and abundance table.
-
+\item Parsers for other peak detection algorithms (e.g. % XCMS,
+  MzMine) and parsers for other alignment procedures
+  (e.g. SpectConnect) and perhaps retention indices procedures. 
+\item More convenient access to the alignment information and
+  abundance table. 
 \item Statistical analysis of differential metabolite abundance.
-
 \item Fragment-level analysis, an alternative method to summarize
   abundance across all detected fragments of a metabolite peak. 
-
 \end{enumerate}
 
 \section{References}
-
 See the following for further details:
 
 \begin{enumerate}
-
 \item Robinson MD. {\em Methods for the analysis of gas chromatography
     - mass spectrometry data.} {\bf Ph.D. Thesis}. October 2008.
   Department of Medical Biology (Walter and Eliza Hall Institute of
   Medical Research), University of Melbourne. 
-
 \item Robinson MD, De Souza DP, Keen WW, Saunders EC, McConville MJ,
   Speed TP, Liki\'{c} VA. (2007) {\em A dynamic programming approach
     for the alignment of signal peaks in multiple gas
     chromatography-mass spectrometry experiments.} {\bf BMC
     Bioinformatics}. 8:419. 
-
 \item Prince JT, Marcotte EM (2006) {\em Chromatographic alignment of
     ESI-LC-MS proteomics data sets by ordered bijective interpolated
     warping}. {\bf Anal Chem}. 78(17):6140-52. 
-
 \end{enumerate}
 
 \section{This vignette was built with/at ...}

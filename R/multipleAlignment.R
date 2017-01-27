@@ -10,11 +10,11 @@ multipleAlignment<-function(pd,group,bw.gap=0.8,wn.gap=0.6,bw.D=.20,wn.D=.05,fil
   for(i in 1:length(groups)) {
     runs<-which(group==groups[i])
 	if(timeAdjust==TRUE) {
-	  fullca<-clusterAlignment(pd,runs,gap=0.05,D=10,usePeaks=F,df=100,verbose=verbose)
+	  fullca<-clusterAlignment(pd,runs,gap=0.05,D=10,usePeaks=F,df=100,verbose=verbose, metric=1, type=1)
       timedf[[i]]<-calcTimeDiffs(pd,fullca,verbose=verbose)
 	}
-	cAs[[i]]<-clusterAlignment(pd,runs,gap=wn.gap,D=wn.D,timedf=timedf[[i]],df=df,usePeaks=usePeaks,verbose=verbose)
-	pAs[[i]]<-progressiveAlignment(pd,cAs[[i]],gap=wn.gap,D=wn.D,df=df,usePeaks=usePeaks,verbose=verbose)
+	cAs[[i]]<-clusterAlignment(pd,runs,gap=wn.gap,D=wn.D,timedf=timedf[[i]],df=df,usePeaks=usePeaks,verbose=verbose,metric=1,type=1)
+	pAs[[i]]<-progressiveAlignment(pd,cAs[[i]],gap=wn.gap,D=wn.D,df=df,usePeaks=usePeaks,verbose=verbose, type=1)
 	if (doImpute)
 	  if(timeAdjust)
 	    impute[[i]]<-imputePeaks(pd,pAs[[i]],fullca,type=2)

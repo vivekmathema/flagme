@@ -24,76 +24,46 @@ dp<-function(M,gap=.5,big=10000000000,verbose=FALSE) {
 }
 
 
-## this two is to allow to use both the ndp
-## functions and the matching functions from MR and RR
-
-## .dynRT <- function(S){
-##     options(warn=-1)
-##     ## S similarity matrix
-##     ## move trought S to find the highest score
-##     S <- round(S, digits=3)
-##     trace <- c()
-##     for(i in 1:nrow(S)){
-##         trace[i] <- which(S[i,] == max(S[i,]))    
-##     }
-##     trace.mtx <- matrix(NA, nrow=nrow(S), ncol=2)  
-##     trace.mtx[,1] <- 1:nrow(S)
-##     trace[which(trace == 1)] <- NA
-##     trace.mtx[,2] <- trace
-
-##     ## cercare i composti matchati più di una volta e renderli univoci
-##     idx <- which(table(trace.mtx[,2]) > 1) # colonne della matrice S
-##     names.idx <- as.numeric(names(idx)) # i doppioni
-##     position <- c() # i doppi con il match più alto
-##     for(k in 1:length(names.idx)){
-##         position[k] <- which(S[,names.idx[k]] == max(S[,names.idx[k]]))
-##     }
-##     tutti <- which(trace %in% names.idx)
-##     trace.mtx[,2][tutti[! tutti %in% position]] <- NA
-        
-##     return(list(match=trace.mtx))
-    
-##     options(warn=0)
-## }
-
-## .dynRTmin <- function(S){
-##     options(warn=-1)
-##     ## S similarity matrix
-##     ## move trought S to find the highest score
-##     S <- round(S, digits=3)
-##     trace <- c()
-##     for(i in 1:nrow(S)){
-##         trace[i] <- which(S[i,] == min(S[i,]))##
-##     }
-##     trace.mtx <- matrix(NA, nrow=nrow(S), ncol=2)  
-##     trace.mtx[,1] <- 1:nrow(S)
-##     trace[which(trace == 1)] <- NA
-##     trace.mtx[,2] <- trace
-
-##     ## cercare i composti matchati più di una volta e renderli univoci
-##     idx <- which(table(trace.mtx[,2]) > 1) # colonne della matrice S
-##     names.idx <- as.numeric(names(idx)) # i doppioni
-##     position <- c() # i doppi con il match più alto
-##     for(k in 1:length(names.idx)){
-##         position[k] <- which(S[,names.idx[k]] == min(S[,names.idx[k]]))
-##     }
-##     tutti <- which(trace %in% names.idx)
-##     trace.mtx[,2][tutti[! tutti %in% position]] <- NA
-        
-##     return(list(match=trace.mtx))
-    
-##     options(warn=0)
-## }
-
-
-
+##' Dynamic Retention Time Based Alignment algorithm, given a similarity matrix
+##'
+##' This function align two chromatograms finding the maximum
+##'     similarity among the mass spectra
+##' @title dynRT
+##' @param S similarity matrix
+##' @return list containing the matched peaks between the two
+##'     chromatograms. The number represent position of the spectra in
+##'     the S matrix 
+##' @author riccardo.romoli@unifi.it
+##' @examples
+##' require(gcspikelite)
+##' gcmsPath <- paste(find.package("gcspikelite"), "data", sep="/")
+##' cdfFiles <- dir(gcmsPath,"CDF", full=TRUE)
+##' ## read data, peak detection results
+##' pd <- peaksDataset(cdfFiles[1:3], mz=seq(50,550),
+##'     rtrange=c(7.5,10.5))
+##' pd <- addXCMSPeaks(files=cdfFiles[1:3], object=pd,
+##'     peakPicking=c('mF'),snthresh=3, fwhm=10,  step=0.1, steps=2,
+##'     mzdiff=0.5, sleep=0)
+##' ## review peak picking
+##' plot(pd, rtrange=c(7.5, 10.5), runs=c(1:3))
+##' ## similarity
+##' r <- ndpRT(pd@peaksdata[[1]], pd@peaksdata[[2]], pd@peaksrt[[1]],
+##'     pd@peaksrt[[2]], D=50)
+##' ## dynamic retention time based alignment algorithm
+##' v <- dynRT(S=r)
 dynRT <- function(S){
     options(warn=-1)
     ## S similarity matrix
     ## move trought S to find the highest score
     S <- round(S, digits=3)
-    filling <- which(table(S) > 200)
+    id <- max(table(S))-1
+    ## filling <- which(table(S) > 200)# weak
+    filling <- which(table(S) > id)
     filling.names <- as.numeric(names(filling))
+    if(filling.names > 1)
+    {
+        filling.names <- 1
+    }
     trace <- c()
     ## this boolean workaround is to allow to use both the ndp
     ## function and the matching function from MR and RR 

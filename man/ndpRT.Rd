@@ -7,7 +7,7 @@
   peaks from 2 samples, using the spectra similarity and the rretention
   time differencies}
 
-\usage{ndpRT((s1, s2, t1, t2, D))}
+\usage{ndpRT(s1, s2, t1, t2, D)}
 
 \arguments{
 \item{s1}{data matrix for sample 1}
@@ -34,11 +34,11 @@
 %% }
 
 \seealso{
-  \code{\code{\link{peaksAlignment}}}
+  \code{\link{peaksAlignment}}
 }
 
 \examples{
-## NOt Run
+## Not Run
 require(gcspikelite)
 gcmsPath <- paste(find.package("gcspikelite"), "data", sep="/")
 cdfFiles <- dir(gcmsPath,"CDF", full=TRUE)

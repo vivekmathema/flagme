@@ -71,7 +71,7 @@ pd<-peaksDataset(cdfFiles[1:2],mz=seq(50,550),rtrange=c(7.5,8.5))
 pd<-addAMDISPeaks(pd,eluFiles[1:2])
 
 # pairwise alignment (it is compressed by default)
-ca<-clusterAlignment(pd, usePeaks = TRUE, df = 20)
+ca<-clusterAlignment(pd, usePeaks = TRUE, df = 20, metric=1, type=1)
 object.size(ca)
 
 # decompress 

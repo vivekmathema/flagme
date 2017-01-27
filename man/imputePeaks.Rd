@@ -66,7 +66,7 @@ pd<-peaksDataset(cdfFiles[1:3],mz=seq(50,550),rtrange=c(7.5,8.5))
 pd<-addAMDISPeaks(pd,eluFiles[1:3])
 
 # alignments
-ca<-clusterAlignment(pd, gap = .5,D=.05,df=30)
+ca<-clusterAlignment(pd, gap = .5,D=.05,df=30, metric=1, type=1)
 pa<-progressiveAlignment(pd, ca, gap = .6, D=.1,df=30)
 
 v<-imputePeaks(pd,pa,filterMin=1)

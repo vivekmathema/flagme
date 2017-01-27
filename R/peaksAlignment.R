@@ -111,7 +111,7 @@ setMethod("decompress","peaksAlignment",
 
 peaksAlignment <- function(d1, d2, t1, t2, gap=0.5, D=50,
                            timedf=NULL, df=30, verbose=TRUE, 
-                           usePeaks=TRUE, compress=FALSE, metric=1,
+                           usePeaks=TRUE, compress=TRUE, metric=2,
                            type=2, penality=0.2){
 
     ## r <- switch(metric,

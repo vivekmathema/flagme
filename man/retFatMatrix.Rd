@@ -3,20 +3,29 @@
 \name{retFatMatrix}
 \alias{retFatMatrix}
 \title{retFatMatrix}
+
 \usage{
-retFatMatrix(data)
+retFatMatrix(data, minFilter=1)
 }
+
 \arguments{
   \item{data}{the list obtained from gatherInfo()}
+  \item{minFilter}{the miimum number of time a feature must matched accross the different
+    samples to be included in the fat data matrix. The value of
+   \code{ minFilter} must be smaller, or at least equal, than the number of
+    samples} 
 }
+
 \value{
 A fat data matrix containing the area of the deconvoluted
 and aligned peaks. The row are the samples while the column
 represent the different peaks.
 }
+
 \description{
 Build a fat data matrix
 }
+
 \details{
 This function allows to extract the data from an object
 created using \code{gatherInfo} and build a data matrix
@@ -24,26 +33,31 @@ using the area of the deconvoluted and aligned peaks. The
 row are the samples while the column represent the different
 peaks.
 }
+
 \examples{
+## Not Run
 require(gcspikelite)
-# paths and files
 gcmsPath <- paste(find.package("gcspikelite"), "data", sep="/")
-cdfFiles <- dir(gcmsPath,"CDF",full=TRUE)
-# read data, peak detection results
-pd <- peaksDataset(cdfFiles[1:2], mz=seq(50,550),
-                   rtrange=c(7.5,8.5))
-pd <- addXCMSPeaks(files=cdfFiles[1:2], object=pd,
-                   peakPicking=c('mF'), snthresh=3, fwhm=4,
-                   step=1, steps=2, mzdiff=0.5)
-mp <- correlationAlignment(object=pd, thr=0.85, D=20,
-                           penality=0.2, normalize=TRUE,
-                           minFilter=1) 
-outList <- gatherInfo(pd, mp)
-mtxD <- retFatMatrix(data=outList)
+cdfFiles <- dir(gcmsPath,"CDF", full=TRUE)
+
+## read data, peak detection results
+pd <- peaksDataset(cdfFiles[1:3], mz=seq(50,550), rtrange=c(7.5,10.5))
+pd <- addXCMSPeaks(files=cdfFiles[1:3], object=pd, peakPicking=c('mF'),
+                   snthresh=3, fwhm=10,  step=0.1, steps=2, mzdiff=0.5,
+                   sleep=0)
+cA <- clusterAlignment(pd, gap=0.3, D=50, df=10, metric=3, type=2,
+                       compress=FALSE, penality=0.4)
+pA <- progressiveAlignment(pd, cA, gap=0.3, D=50, df=30,
+                           compress=FALSE, type=2) 
+outList <- gatherInfo(pd, obj=pA)
+mtxD <- retFatMatrix(data=outList, minFilter=1)
+## End (Not Run)
 }
+
 \author{
 Riccardo Romoli \email{riccardo.romoli@unifi.it}
 }
+
 \seealso{
 \code{\link{gatherInfo}}
 }

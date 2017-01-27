@@ -64,7 +64,7 @@ eluFiles <- dir(gcmsPath, "ELU", full=TRUE)
 pd <- peaksDataset(cdfFiles[1:2], mz=seq(50,550), rtrange=c(7.5,8.5))
 pd <- addAMDISPeaks(pd, eluFiles[1:2])
 
-ca <- clusterAlignment(pd, gap=0.5, D=0.05, df=30)
+ca <- clusterAlignment(pd, gap=0.5, D=0.05, df=30, metric=1, type=1)
 }
 
 \keyword{classes}

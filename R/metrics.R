@@ -116,7 +116,7 @@ ndpRT <- function(s1, s2, t1, t2, D){
 
 
 ## correlation Alignment
-corPrt <- function(d1, d2, t1, t2, D=D, penality=0.2){
+corPrt <- function(d1, d2, t1, t2, D, penality=0.2){
     D <- as.numeric(D) # time window in second
     pn <- as.numeric(penality)# penality if out of time window
     pearson <- function(x,y){
@@ -164,10 +164,10 @@ corPrt <- function(d1, d2, t1, t2, D=D, penality=0.2){
                                pearson(x2, y2)
                            else 
                                pearson(x2, y2) - pn
-                       else NA
+                       else 0
         }
     }
-
+    
     r <- apply(r, MARGIN=c(1,2), function(x){
         if(x < 0.2)
         {

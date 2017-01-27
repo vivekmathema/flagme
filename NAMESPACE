@@ -14,7 +14,7 @@ importFrom("gplots", "colorpanel")
 importFrom("graphics", "axis", "image", "lines", "matplot", "plot",
            "points", "text")
 importFrom("stats", "approx", "as.dist", "contr.sum", "cutree", "dist",
-           "hclust", "median", 'cor')
+           "hclust", "median", 'cor', "aggregate", "complete.cases", "model.matrix")
 importFrom("utils", "read.table")
 importFrom("xcms", "xcmsRaw", 'xcmsSet')
 importFrom("CAMERA", "annotate", "getpspectra")

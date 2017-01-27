@@ -1,5 +1,5 @@
-\name{ndpRT}
-\alias{ndpRT}
+\name{corPrt}
+\alias{corPrt}
 
 \title{Retention Time Penalized Correlation}
 
@@ -7,7 +7,7 @@
   peaks from 2 samples, using the spectra similarity and the rretention
   time differencies}
 
-\usage{corPrt(d1, d2, t1, t2, D=D, penality=0.2)}
+\usage{corPrt(d1, d2, t1, t2, D, penality=0.2)}
 
 \arguments{
 \item{d1}{data matrix for sample 1}

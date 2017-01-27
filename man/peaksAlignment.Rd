@@ -15,7 +15,7 @@
 
 \usage{peaksAlignment(d1, d2, t1, t2, gap=0.5, D=50, timedf=NULL, df=30,
                verbose=TRUE, usePeaks=TRUE, compress=TRUE, metric=2,
-               type=2)}
+               type=2, penality=0.2)}
 
 \arguments{
   \item{d1}{matrix of MS intensities for 1st sample (if doing a peak
@@ -43,6 +43,8 @@
   matrix between two mass spectrum. \code{metric=1} call \code{normDotProduct()};
   \code{metric=2} call \code{ndpRT()}; \code{metric=3} call \code{corPrt()}}
   \item{type}{numeric, two different type of alignment function}
+  \item{penality}{penalization applied to the matching between two mass
+  spectra if \code{(t1-t2)>D}} 
 }
 
 \details{ 
@@ -85,7 +87,7 @@ plot(pd, rtrange=c(7.5, 10.5), runs=c(1:3))
 ## align two chromatogram
 pA <- peaksAlignment(pd@peaksdata[[1]], pd@peaksdata[[2]],
                      pd@peaksrt[[1]], pd@peaksrt[[2]], D=50,
-                     metric=3, compress=FALSE, type=2)
+                     metric=3, compress=FALSE, type=2, penality=0.2)
 
 plot(pA)
 pA@v$match
