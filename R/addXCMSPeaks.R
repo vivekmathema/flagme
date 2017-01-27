@@ -1,4 +1,5 @@
 addXCMSPeaks <- function(files, object, peakPicking=c('cwt','mF'), ...){
+    options(warn=-1) # Warning :implicit list embedding of S4 objects is deprecated
     cdfFiles <- as.character(files)
     if(length(cdfFiles) != length(object@rawdata))
         stop('Number of files must be the same as the number of runs (and must match).')
@@ -25,7 +26,7 @@ addXCMSPeaks <- function(files, object, peakPicking=c('cwt','mF'), ...){
                      ## set mz range
                      idx <- which(s@peaks[,"mz"] > min(object@mz) & s@peaks[,"mz"] < max(object@mz))
                      s@peaks <- s@peaks[idx,]
-                     ##deconvolution
+                     ## deconvolution
                      a <- annotate(s, perfwhm=0.6, max_peaks=500, quick=TRUE) 
                      return(a)
                  }, 
@@ -127,7 +128,20 @@ addXCMSPeaks <- function(files, object, peakPicking=c('cwt','mF'), ...){
     object@files    
     ## build @mz
     object@mz
-    #
+    
+    ## order peaks according to retention time
+    for(i in 1:length(files)){
+        ord <- order(apex.rt[[i]])
+        data[[i]] <- data[[i]][,ord]
+        apex.rt[[i]] <- apex.rt[[i]][ord]
+        spectra.ind[[i]] <- spectra.ind[[i]][ord]
+        ind.start[[i]] <- ind.start[[i]][ord]
+        ind.stop[[i]] <- ind.stop[[i]][ord]
+    }
+
+    options(warn=0)
+
+    
     ## S4 ##
     nm <- lapply(files, function(u){sp <- strsplit(u, split="/")[[1]]
                                     sp[length(sp)]
@@ -135,7 +149,7 @@ addXCMSPeaks <- function(files, object, peakPicking=c('cwt','mF'), ...){
                  )
     nm <- sub(".CDF$", "" , nm)
     names(data) <- names(apex.rt) <- names(spectra.ind) <- names(ind.start) <- names(ind.stop) <- nm
-    
+
     new("peaksDataset",
         files=object@files,
         peaksdata=data,

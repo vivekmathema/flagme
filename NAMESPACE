@@ -1,3 +1,5 @@
+useDynLib(flagme)
+
 #  All functions exported other than those starting with "."
 exportPattern("^[^\\.]")
 
