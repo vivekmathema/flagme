@@ -5,10 +5,11 @@
 \title{retFatMatrix}
 
 \usage{
-retFatMatrix(data, minFilter=1)
+retFatMatrix(object, data, minFilter=1)
 }
 
 \arguments{
+  \item{object}{a \code{peaksDataset} object.}
   \item{data}{the list obtained from gatherInfo()}
   \item{minFilter}{the miimum number of time a feature must matched accross the different
     samples to be included in the fat data matrix. The value of
@@ -50,7 +51,7 @@ cA <- clusterAlignment(pd, gap=0.3, D=50, df=10, metric=3, type=2,
 pA <- progressiveAlignment(pd, cA, gap=0.3, D=50, df=30,
                            compress=FALSE, type=2) 
 outList <- gatherInfo(pd, obj=pA)
-mtxD <- retFatMatrix(data=outList, minFilter=1)
+mtxD <- retFatMatrix(object=pd, data=outList, minFilter=1)
 ## End (Not Run)
 }
 
