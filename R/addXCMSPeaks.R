@@ -27,7 +27,7 @@ addXCMSPeaks <- function(files, object, peakPicking=c('cwt','mF'), ...){
                      idx <- which(s@peaks[,"mz"] > min(object@mz) & s@peaks[,"mz"] < max(object@mz))
                      s@peaks <- s@peaks[idx,]
                      ## deconvolution
-                     a <- annotate(s, perfwhm=0.6, max_peaks=500, quick=TRUE) 
+                     a <- annotate(s, perfwhm=1, max_peaks=500, quick=TRUE) #perfwhm=0.6
                      return(a)
                  }, 
                  y=peakPicking
