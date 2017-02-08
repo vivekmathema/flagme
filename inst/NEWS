@@ -1,4 +1,11 @@
 ==========
+= 1.31.2 =
+==========
+- updated retFatMatrix()
+- Several bug fixed
+
+
+==========
 = 1.31.1 =
 ==========
 - Removed correlationAlignment function
