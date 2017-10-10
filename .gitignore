@@ -1,5 +1,3 @@
-./libs/*
-
 # History files
 .Rhistory
 .Rapp.history
@@ -40,3 +38,9 @@ vignettes/*.pdf
 # emacs autosave
 *.R~
 *.Rd~
+
+# devtools
+./libs/*
+
+# README
+README.md
