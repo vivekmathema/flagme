@@ -3,69 +3,60 @@
 \alias{betweenAlignment}
 \alias{betweenAlignment-class}
 \alias{betweenAlignment-show}
-\alias{show,betweenAlignment-method}
+\alias{show, betweenAlignment-method}
 
 \title{Data Structure for "between" alignment of many GCMS samples}
 
 \description{This function creates a "between" alignment (i.e. comparing merged peaks)}
 
-\usage{betweenAlignment(pD,cAList,pAList,impList,filterMin=3,gap=0.7,D=10,usePeaks=TRUE,df=30,verbose=TRUE)}
+\usage{betweenAlignment(pD, cAList, pAList, impList, filterMin = 1, gap = 0.7, 
+	                    D = 10, usePeaks = TRUE, df = 30, verbose = TRUE, 
+                        metric = 2,  type = 2, penality = 0.2)}
 
 \arguments{
-
-\item{pD}{a \code{peaksDataset} object}
-
-\item{cAList}{\code{list} of \code{clusterAlignment} objects, one for each experimental group}
-
-\item{pAList}{\code{list} of \code{progressiveAlignment} objects, one for each experimental group}
-
-\item{impList}{\code{list} of imputation lists}
-
-\item{filterMin}{minimum number of peaks within a merged peak to be kept in the analysis}
-
-\item{gap}{gap parameter}
-
-\item{D}{retention time penalty parameter}
-
-\item{usePeaks}{logical, whether to use peaks (if \code{TRUE}) or the full 2D profile alignment (if \code{FALSE})}
-
-\item{df}{distance from diagonal to calculate similarity}
-
-\item{verbose}{logical, whether to print information}
-
+	\item{pD}{a \code{peaksDataset} object}
+	\item{cAList}{\code{list} of \code{clusterAlignment} objects, one for each experimental group}
+	\item{pAList}{\code{list} of \code{progressiveAlignment} objects, one for each experimental group}
+	\item{impList}{\code{list} of imputation lists}
+	\item{filterMin}{minimum number of peaks within a merged peak to be kept in the analysis}
+	\item{gap}{gap parameter}
+	\item{D}{retention time penalty parameter}
+	\item{usePeaks}{logical, whether to use peaks (if \code{TRUE}) or the full 
+					2D profile alignment (if \code{FALSE})}
+	\item{df}{distance from diagonal to calculate similarity}
+	\item{verbose}{logical, whether to print information}
+	\item{metric}{numeric, different algorithm to calculate the similarity
+	  matrix between two mass spectrum. \code{metric=1} call \code{normDotProduct()};
+	  \code{metric=2} call \code{ndpRT()}; \code{metric=3} call \code{corPrt()}}
+	\item{type}{numeric, two different type of alignment function}
+    \item{penality}{penalization applied to the matching between two mass 
+    				spectra if \code{(t1-t2)>D}}
 }
 
 
 \details{
-
-\code{betweenAlignment} objects gives the data structure which stores the result of an alignment across several "pseudo" datasets.  These pseudo datasets are constructed by merging the "within" alignments.
-
+	\code{betweenAlignment} objects gives the data structure which stores the result of an alignment across several "pseudo" datasets. These pseudo datasets are constructed by merging the "within" alignments.
 }
 
 \value{
-
-\code{betweenAlignment} object
-
+	\code{betweenAlignment} object
 }
 
 
 \author{Mark Robinson}
 
-
 \references{
-
-Mark D Robinson (2008).  Methods for the analysis of gas chromatography - mass spectrometry data \emph{PhD dissertation} University of Melbourne.
-
+	Mark D Robinson (2008).  Methods for the analysis of gas chromatography - mass spectrometry data \emph{PhD dissertation} University of Melbourne.
 }
 
 
 \seealso{
-\code{\link{multipleAlignment}}
+	\code{\link{multipleAlignment}}
 }
 
 \examples{
-require(gcspikelite)
-# see 'multipleAlignment'
+	require(gcspikelite)
+	## see 'multipleAlignment'
 }
 
 \keyword{classes}

@@ -153,12 +153,12 @@ peaksAlignment <- function(d1, d2, t1, t2, gap=0.5, D=50,
                 metric, ', type=', type, '\n')
         v <- dynRT(S=r) # RR, modified to be used with normDotProduct()
     }
-
+    
     v$match <- v$match[!is.na(v$match[,2]),] # remove non-matched peaks
     
     sim <- 0
     for(i in 1:nrow(v$match)){
-        sim <- sim + r[v$match[i, 1], v$match[i, 2]]
+        sim <- sim + r[v$match[i, 1], v$match[i, 2]]#
     }
     sim <- sim/nrow(v$match)
     if(verbose) 

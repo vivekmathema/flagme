@@ -74,6 +74,7 @@ require(gcspikelite)
 library(flagme)
 @
 
+
 To load the data and corresponding peak detection results, we simply
 create vectors of the file-names and create a \texttt{peakDataset}
 object. Note that we can speed up the import time by setting the
@@ -282,8 +283,8 @@ example follows.
 <<multiplealignment>>=
 print(targets)
 ma <- multipleAlignment(pd, group=targets$Group, wn.gap=0.5, wn.D=.05,
-                        bw.gap=.6, bw.D=0.05, usePeaks=TRUE,
-                        filterMin=2, df=50, verbose=FALSE)
+                        bw.gap=.6, bw.D=0.05, usePeaks=TRUE, filterMin=1, 
+                        df=50, verbose=FALSE, metric = 1, type = 1) # bug
 ma
 @
 

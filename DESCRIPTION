@@ -1,5 +1,5 @@
 Package: flagme
-Version: 1.33.0
+Version: 1.33.1
 Date: 2015/04/06
 Title: Analysis of Metabolomics GC/MS Data
 Author: Mark Robinson <mark.robinson@imls.uzh.ch>, Riccardo Romoli <riccardo.romoli@unifi.it>
@@ -15,3 +15,4 @@ Collate: 0classes.R clusterAlignment.R init.R multipleAlignment.R
         rmaFitUnit.R addXCMSPeaks.R retFatMatrix.R plotSpectra.R
         exportSpectra.R
 biocViews: DifferentialExpression, MassSpectrometry
+RoxygenNote: 6.0.1

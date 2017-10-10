@@ -1,5 +1,5 @@
-addXCMSPeaks <- function(files, object, peakPicking=c('cwt','mF'), ...){
-    options(warn=-1) # Warning :implicit list embedding of S4 objects is deprecated
+addXCMSPeaks <- function(files, object, peakPicking = c('cwt','mF'), ...){
+    options(warn = -1) # Warning :implicit list embedding of S4 objects is deprecated
     cdfFiles <- as.character(files)
     if(length(cdfFiles) != length(object@rawdata))
         stop('Number of files must be the same as the number of runs (and must match).')
@@ -9,28 +9,51 @@ addXCMSPeaks <- function(files, object, peakPicking=c('cwt','mF'), ...){
                      ## retention time range to scanrange
                      f <- which(cdfFiles %in% x) 
                      xr <- xcmsRaw(x)
-                     rtrange <- c(min(object@rawrt[[f]]), max(object@rawrt[[f]]))*60
-                     scanRange <- c(max(1,which(xr@scantime > rtrange[1])[1], na.rm=TRUE),
-                                    min(length(xr@scantime), which(xr@scantime > rtrange[2])[1] - 1, na.rm=TRUE))
+        rtrange <- c(min(object@rawrt[[f]]),
+                     max(object@rawrt[[f]])) * 60
+        scanRange <- c(max(1,
+                           which(xr@scantime > rtrange[1])[1], na.rm = TRUE),
+                       min(length(xr@scantime),
+                           which(xr@scantime > rtrange[2])[1] - 1, na.rm = TRUE))
                      ## peak picking
                      if(peakPicking == 'cwt'){
-                         s <- xcmsSet(x, method='centWave', ## peakwidth=c(5,35),
-                                      prefilter=c(5,100), scanrange=scanRange, integrate=1,
-                                      mzdiff=-0.001, fitgauss=TRUE, ...)
+                         s <- xcmsSet(x, method = 'centWave',
+                                      ## peakwidth = c(5,35),
+                                      prefilter = c(5,100),
+                                      scanrange = scanRange,
+                                      integrate = 1,
+                                      mzdiff = -0.001,
+                                      fitgauss = TRUE, ...)
                      }
                      if(peakPicking == 'mF'){
-                         s <- xcmsSet(x, method='matchedFilter', scanrange=scanRange,
-                                      ## step=0.5, steps=2, mzdiff=0.5,
-                                      max=500, ...)
+                         s <- xcmsSet(x, method = 'matchedFilter',
+                                      scanrange = scanRange,
+                                      ## step = 0.5,
+                                      ## steps = 2,
+                                      ## mzdiff = 0.5,
+                                      max = 500, ...)
                      }
                      ## set mz range
-                     idx <- which(s@peaks[,"mz"] > min(object@mz) & s@peaks[,"mz"] < max(object@mz))
+        idx <- which(
+            s@peaks[,"mz"] > min(object@mz) &
+            s@peaks[,"mz"] < max(object@mz))
                      s@peaks <- s@peaks[idx,]
-                     ## deconvolution
-                     a <- annotate(s, perfwhm=1, max_peaks=500, quick=TRUE) #perfwhm=0.6
+        ## deconvolution
+        ## a <- annotate(s, perfwhm = 1,
+        ##               max_peaks = 500,
+        ##               quick = TRUE)
+        a <- xsAnnotate(s)
+        a <- groupFWHM(a, perfwhm = 0.75)
+        a <- groupCorr(a, cor_eic_th = 0.8,
+                       pval = 0.05,
+                       graphMethod = "hcs",
+                       calcIso = FALSE,
+                       calcCiS = TRUE,
+                       calcCaS = FALSE,
+                       cor_exp_th = 0.75)
                      return(a)
                  }, 
-                 y=peakPicking
+                 y = peakPicking
                  )
     ## which colum to be passed based on the peak-picking step    
     if(peakPicking == 'cwt'){
@@ -45,12 +68,12 @@ addXCMSPeaks <- function(files, object, peakPicking=c('cwt','mF'), ...){
                        filt <- sapply(xs[[x]]@pspectra, function(r){length(r)})
                        spec.idx <- c(1:length(xs[[x]]@pspectra))[which(filt >= 6)]
                        mzrange <- object@mz
-                       abu <- data.frame(matrix(0, nrow=length(mzrange),
-                                                ncol=length(spec.idx)))
+                       abu <- data.frame(matrix(0, nrow = length(mzrange),
+                                                ncol = length(spec.idx)))
                        rownames(abu) <- mzrange
                        colnames(abu) <- spec.idx
                        ## schismatrix
-                       mz <- data.frame(mz=mzrange) ## dummy to be merged
+                       mz <- data.frame(mz = mzrange) ## dummy to be merged
                        abu <- sapply(spec.idx, function(z){
                            spec <- getpspectra(xs[[x]], z)[,c('mz', area)]
                            spec[,'mz'] <- round(spec[,'mz'])
@@ -58,7 +81,7 @@ addXCMSPeaks <- function(files, object, peakPicking=c('cwt','mF'), ...){
                            if (max(table(spec[,1])) > 1){
                                spec.noDouble <- cbind(aggregate(spec[,2],
                                                                 list(spec[,1]),
-                                                                FUN=sum))
+                                                                FUN = sum))
                                colnames(spec.noDouble) <- c('mz', area)
                                spec <- spec.noDouble
                            } else {
@@ -66,8 +89,8 @@ addXCMSPeaks <- function(files, object, peakPicking=c('cwt','mF'), ...){
                            } 
                            ## bug due to a different mz range from
                            ## peaksDataset() and addXCMS(); SOLVED
-                           abu$z <- merge(spec, mz, by='mz',
-                                          all=TRUE)[,area] ## THE GOAL
+                           abu$z <- merge(spec, mz, by = 'mz',
+                                          all = TRUE)[,area] ## THE GOAL
                        }
                                      )
                        colnames(abu) <- spec.idx ## could be a problem?
@@ -76,7 +99,7 @@ addXCMSPeaks <- function(files, object, peakPicking=c('cwt','mF'), ...){
                    }
                    )
     ## build @peaksrt
-    apex.rt <- lapply(seq(along=cdfFiles),
+    apex.rt <- lapply(seq(along = cdfFiles),
                       function(x){
                           filt <- sapply(xs[[x]]@pspectra, function(r){length(r)})
                           spec.idx <- c(1:length(xs[[x]]@pspectra))[which(filt >= 6)]
@@ -90,7 +113,7 @@ addXCMSPeaks <- function(files, object, peakPicking=c('cwt','mF'), ...){
                       }
                       )    
     ## build @peaksind
-    spectra.ind <- lapply(seq(along=cdfFiles),
+    spectra.ind <- lapply(seq(along = cdfFiles),
                           function(x){
                               filt <- sapply(xs[[x]]@pspectra, function(r){length(r)})
                               spec.idx <- c(1:length(xs[[x]]@pspectra))[which(filt >= 6)]
@@ -111,7 +134,7 @@ addXCMSPeaks <- function(files, object, peakPicking=c('cwt','mF'), ...){
                         }
                         )
     ## build @peaksind.stop
-    ind.stop <- lapply(seq(along=cdfFiles),
+    ind.stop <- lapply(seq(along = cdfFiles),
                        function(x){
                            filt <- sapply(xs[[x]]@pspectra, function(r){length(r)})
                            spec.idx <- c(1:length(xs[[x]]@pspectra))[which(filt >= 6)]
@@ -139,11 +162,11 @@ addXCMSPeaks <- function(files, object, peakPicking=c('cwt','mF'), ...){
         ind.stop[[i]] <- ind.stop[[i]][ord]
     }
 
-    options(warn=0)
+    options(warn = 0)
 
     
     ## S4 ##
-    nm <- lapply(files, function(u){sp <- strsplit(u, split="/")[[1]]
+    nm <- lapply(files, function(u){sp <- strsplit(u, split = "/")[[1]]
                                     sp[length(sp)]
                                 }
                  )
@@ -151,15 +174,15 @@ addXCMSPeaks <- function(files, object, peakPicking=c('cwt','mF'), ...){
     names(data) <- names(apex.rt) <- names(spectra.ind) <- names(ind.start) <- names(ind.stop) <- nm
 
     new("peaksDataset",
-        files=object@files,
-        peaksdata=data,
-        peaksrt=apex.rt,
-        peaksind=spectra.ind,
-        peaksind.start=ind.start,
-        peaksind.end=ind.stop, 
-        rawdata=object@rawdata,
-        rawrt=object@rawrt,
-        mz=object@mz
+        files = object@files,
+        peaksdata = data,
+        peaksrt = apex.rt,
+        peaksind = spectra.ind,
+        peaksind.start = ind.start,
+        peaksind.end = ind.stop, 
+        rawdata = object@rawdata,
+        rawrt = object@rawrt,
+        mz = object@mz
         )
 }
 

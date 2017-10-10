@@ -1,4 +1,11 @@
 ==========
+= 1.31.3 =
+==========
+- Improoved addXCMSpeaks() peak-picking 
+- Several bug fixed
+
+
+==========
 = 1.31.2 =
 ==========
 - updated retFatMatrix()
