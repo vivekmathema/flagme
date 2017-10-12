@@ -1,7 +1,18 @@
 ==========
-= 1.31.3 =
+= 1.33.2 =
+==========
+- add plotMultipleSpectra()
+
+
+==========
+= 1.33.1 =
 ==========
 - Improoved addXCMSpeaks() peak-picking 
+
+
+==========
+= 1.33.0 =
+==========
 - Several bug fixed
 
 
