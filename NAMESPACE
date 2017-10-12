@@ -12,7 +12,7 @@ importMethodsFrom("SparseM", "as.matrix", "as.matrix.csc")
 importFrom("MASS", "rlm")
 importFrom("gplots", "colorpanel")
 importFrom("graphics", "axis", "image", "lines", "matplot", "plot",
-           "points", "text")
+           "points", "text", "par")
 importFrom("stats", "approx", "as.dist", "contr.sum", "cutree", "dist",
            "hclust", "median", 'cor', "aggregate", "complete.cases", "model.matrix")
 importFrom("utils", "read.table")

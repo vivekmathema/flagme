@@ -52,7 +52,7 @@ plotMultipleSpectra(object = pd, outList = gip, spectra = 33, fullRange = FALSE,
                     normalize = TRUE)
 }
 \author{
-Riccardo Romoli (riccardo.romoli@unifi.it)
+Riccardo Romoli \email{riccardo.romoli@unifi.it}
 }
 \keyword{gatherInfo()}
 \keyword{plot()}
