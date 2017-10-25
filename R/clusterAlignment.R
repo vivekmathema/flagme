@@ -34,7 +34,6 @@ clusterAlignment <- function(pD, runs = 1:length(pD@rawdata),
     colnames(dist) <- names(pD@rawdata)[runs]
     rownames(dist) <- names(pD@rawdata)[runs]
     count <- 0
-    ## browser()
     for(i in 1:(n-1))
     {
         run.i <- runs[i]
@@ -58,7 +57,7 @@ clusterAlignment <- function(pD, runs = 1:length(pD@rawdata),
                                usePeaks = usePeaks, 
                                timedf = timedf[[count]], 
                                verbose = verbose, ...)
-             }
+            }
             else
             {
                 alignments[[count]] <-

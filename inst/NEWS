@@ -1,4 +1,11 @@
 ==========
+= 1.33.3 =
+==========
+- fix progressiveAlignment() bug on df parameter
+- updated multipleAlignment documentation fixing the use of wn.D parameter
+
+
+==========
 = 1.33.2 =
 ==========
 - add plotMultipleSpectra()

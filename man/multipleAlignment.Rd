@@ -21,8 +21,10 @@
 	             alignment algorithm}
 	\item{bw.gap}{gap parameter for "between" alignments}
 	\item{wn.gap}{gap parameter for "within" alignments}
-	\item{bw.D}{distance penalty for "between" alignments}
-	\item{wn.D}{distance penalty for "within" alignments}
+	\item{bw.D}{distance penalty for "between" alignments. When \code{type = 2}
+	            represent the retention time window expressed in seconds}
+	\item{wn.D}{distance penalty for "within" alignments. When \code{type = 2}
+	            represent the retention time window expressed in seconds}
 	\item{filterMin}{minimum number of peaks within a merged peak to be kept in
 	                 the analysis}
 	\item{lite}{logical, whether to keep "between" alignment details 
