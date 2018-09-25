@@ -15,6 +15,7 @@
 ##' @return a .msp file ready to be read using NIST search
 ##' @author riccardo.romoli@unifi.it
 exportSpectra <- function(object, sample, spectraID, normalize=TRUE){
+    browser()
     spectraID <- as.numeric(spectraID)
     sample <- as.character(sample)
     i <- grep(pattern=sample, object@files)
@@ -43,4 +44,60 @@ exportSpectra <- function(object, sample, spectraID, normalize=TRUE){
     }else{
         stop(paste('The spectrum is not present in the sample', sample, '\n'))
     }
+}
+
+
+##' Read the mass spectra from an external msp file
+##'
+##' Read the mass spectra from an external file in msp format. The format is
+##' used in NIST search library database.
+##' @title importSpec
+##' @param file 
+##' @return list conaining the mass spctra
+##' @author riccardo.romoli@unifi.it
+importSpec <- function(file){
+    ## read msp lib
+    lib <- scan(file, what = "", sep = "\n", quiet = TRUE)
+    ## separate each mass spec
+    starts <- which(regexpr("[Nn][Aa][Mm][Ee]: ", lib) == 1)
+    ends <- c(starts[-1] - 1, length(lib))
+    ## loop to extract the mass spec into a list
+    list.spec <- lapply(1:length(starts), function(z){
+        ## meta data
+        comp <- lib[starts[z]:ends[z]]
+        numPeaks.idx <- which(regexpr("Num Peaks: ", comp) == 1)
+        metaData <- comp[1:numPeaks.idx - 1]
+        md <- strsplit(metaData, split = ": ")
+        md1 <- sapply(md, "[[", 1)
+        md2 <- sapply(md, "[", 2)
+        metaData.list <- setNames(as.list(md2), md1)
+        ## mass spec
+        nlines <- length(comp)
+        npeaks <- as.numeric(strsplit(comp[numPeaks.idx], ":")[[1]][2])
+        peaks.idx <- (numPeaks.idx + 1):nlines
+        pks <- gsub("^ +", "", unlist(strsplit(comp[peaks.idx], ";")))
+        pks <- pks[pks != ""]
+        if (length(pks) != npeaks)
+            stop("Not the right number of peaks in compound", cmpnd$Name)
+        pklst <- strsplit(pks, " ")
+        pklst <- lapply(pklst, function(x) x[x != ""])
+        mz <- as.numeric(sapply(pklst, "[[", 1))
+        int <- as.numeric(sapply(pklst, "[[", 2))
+        ## 
+        finaltab <- matrix(c(mz, int), ncol = 2)
+        if (any(table(mz) > 1))
+        {
+            warning("Duplicate mass in compound ", cmpnd$Name,
+                    " (CAS ", cmpnd$CAS, ")... summing up intensities")
+            finaltab <- aggregate(finaltab[,2],
+                                  by = list(finaltab[,1]),
+                                  FUN = sum)
+        }
+
+        colnames(finaltab) <- c("mz", "intensity")
+        c(metaData.list, list(spec = finaltab))
+        
+    }
+    )
+    return(list.spec)
 }
