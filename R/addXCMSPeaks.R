@@ -393,7 +393,108 @@ addXCMSPeaks2 <- function(files, object, param = NULL, ...){
 
 
 ################################################################################
+FWHM <- function(a){
+    d <- spline(a)
+    ##    d <- density(na.omit(a), n=1e4)
+    xmax <- d$x[d$y==max(d$y)]
+    x1 <- d$x[d$x < xmax][which.min(abs(d$y[d$x < xmax]-max(d$y)/2))]
+    x2 <- d$x[d$x > xmax][which.min(abs(d$y[d$x > xmax]-max(d$y)/2))]
+    ## plot(d, type = "l")
+    ## points(c(x1, x2), c(d$y[d$x==x1], d$y[d$x==x2]), col="red")
+    FWHM <- x2-x1
+    return(FWHM)
+}
 
+
+decon <- function(xd, raw_data){
+    rts <- unique(xd[,"rt"])
+    dec <- list()
+    for(i in seq(rts)){
+        idx <-  which(round(xd[,"rt"], digits = 3) == rts[i])
+        if(length(idx) == 0)
+        {
+            dec[[i]] <- FALSE
+        }
+        else
+        {
+            dec[[i]] <- xd[idx,]
+        }
+    }
+    
+    ## 326 664 665
+    whichRowToTake <- unlist(sapply(dec, function(x){
+                length(x) >= 8*12
+            }))
+
+    bo <- list()
+    for(j in seq(along = dec))
+    {
+        if(whichRowToTake[j] == FALSE)
+        {
+            bo[[j]] <- NULL
+        }
+        else
+        {
+            bo[[j]] <- dec[[j]]
+        }
+    }
+
+    # cleanup
+    bo[sapply(bo, is.null)] <- NULL
+
+    ## calculate and extract fwhm of the peaks
+    clust <- makeCluster(detectCores())
+    clusterExport(cl = clust, varlist = c("FWHM", "xd", "raw_data", "bo"), envir = environment())
+    fwhm.list <- parLapply(clust, seq(along = bo), function(x)
+    {
+        dec.list <- bo[[x]]
+        fwhm.vec <- sapply(1:nrow(dec.list), function(k){
+            chr <- chromatogram(raw_data, mz = c(dec.list[k,"mz"], dec.list[k,"mz"]+1), rt = dec.list[,c("rtmin", "rtmax")])
+            int <- intensity(chr@.Data[[1]])
+            int[is.na(int)] <- 0
+            fwhm.ret <- round(FWHM(int), digits = 3)
+            fwhm.ret <- ifelse(test = length(fwhm.ret) == 0, yes = 0, no = fwhm.ret)
+            return(fwhm.ret)
+        })
+        require(mclust)
+        d_clust <- mclust::Mclust(fwhm.vec, G = 1:15)
+        ## d_clust$classification
+        spec.df <- cbind.data.frame(dec.list, grp = d_clust$classification)
+        grp.list <- split(spec.df, spec.df[,"grp"])
+        ## deconvoluted spec diag plot
+        ## plot(grp.list[[4]][,"mz"], grp.list[[4]][,"into"], type = "h")
+        ## points(grp.list[[3]][,"mz"], grp.list[[3]][,"into"], type = "h", col = 2)
+        ## points(grp.list[[2]][,"mz"], grp.list[[2]][,"into"], type = "h", col = 3)
+        ## points(grp.list[[1]][,"mz"], grp.list[[1]][,"into"], type = "h", col = 4)
+        ## clean list
+        grp.list.clean <- lapply(grp.list, function(x){
+            if(nrow(x) < 6)
+            {
+                x <- NULL
+            }
+            else
+            {
+                x
+            }
+        })
+        ## remove NULL folder
+        grp.list.clean[sapply(grp.list.clean, is.null)] <- NULL
+        if(length(grp.list.clean) == 0)
+        {
+            grp.list.clean <- NULL
+        }
+        else
+        {
+            names(grp.list.clean) <- paste(x, "-", seq(along = names(grp.list.clean)), sep = "")
+        }
+        return(grp.list.clean)
+
+    }## end lapply function
+    )
+    stopCluster(clust)
+
+    return(fwhm.list)
+}
 
 addXCMSPeaks3 <- function(files, object, param = NULL, ...){
     options(warn = -1) # Warning :implicit list embedding of S4 objects is deprecated
@@ -413,10 +514,6 @@ addXCMSPeaks3 <- function(files, object, param = NULL, ...){
                      ## xr@scantime BECAME raw_data@featureData@data$retentionTime
                      rtrange <- c(min(object@rawrt[[f]]),
                                   max(object@rawrt[[f]])) * 60
-                     ## scanRange <- c(max(1,
-                     ##                    which(xr@scantime > rtrange[1])[1], na.rm = TRUE),
-                     ##                min(length(xr@scantime),
-                     ##                    which(xr@scantime > rtrange[2])[1] - 1, na.rm = TRUE))
                      scanRange <- c(max(1,
                                         which(raw_data@featureData@data$retentionTime > rtrange[1])[1], na.rm = TRUE),
                                     min(length(raw_data@featureData@data$retentionTime),
@@ -428,7 +525,7 @@ addXCMSPeaks3 <- function(files, object, param = NULL, ...){
                          cat("Please select the integration parametere related to the chromatographic peak detection you want to use \n")
                      }
                      xs <- findChromPeaks(raw_data, param = param)
-                     ## We can also coerce the XCMSnExp object into an xcmsSet object:
+                     ## coerce the XCMSnExp object into an xcmsSet object:
                      s <- as(xs, "xcmsSet")
                      ## browser()
                      ## rts <- sapply(s@rt$raw, function(x){round(x)})
