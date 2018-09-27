@@ -393,9 +393,17 @@ addXCMSPeaks2 <- function(files, object, param = NULL, ...){
 
 
 ################################################################################
-FWHM <- function(a){
+.flatten3 <- function(x){
+    repeat{
+        if(!any(vapply(x, is.list, logical(1))))
+            return(x)
+        x <- Reduce(c, x)
+    }
+}
+
+
+.FWHM <- function(a){
     d <- spline(a)
-    ##    d <- density(na.omit(a), n=1e4)
     xmax <- d$x[d$y==max(d$y)]
     x1 <- d$x[d$x < xmax][which.min(abs(d$y[d$x < xmax]-max(d$y)/2))]
     x2 <- d$x[d$x > xmax][which.min(abs(d$y[d$x > xmax]-max(d$y)/2))]
@@ -406,7 +414,7 @@ FWHM <- function(a){
 }
 
 
-bayesDeconvolution <- function(xdata, raw_data){
+.bayesDeconvolution <- function(xdata, raw_data){
     rts <- unique(xdata[,"rt"])
     dec <- list()
     for(i in seq(rts)){
@@ -421,7 +429,6 @@ bayesDeconvolution <- function(xdata, raw_data){
         }
     }
     
-    ## 326 664 665
     whichRowToTake <- unlist(sapply(dec, function(x){
                 length(x) >= 8*12
             }))
@@ -443,31 +450,21 @@ bayesDeconvolution <- function(xdata, raw_data){
     bo[sapply(bo, is.null)] <- NULL
 
     ## calculate and extract fwhm of the peaks
-    ## clust <- makeCluster(detectCores())
-    ## clusterExport(cl = clust, varlist = c("FWHM", "xd", "raw_data", "bo"), envir = environment())
-    ## fwhm.list <- parLapply(clust, seq(along = bo), function(x)
-    fwhm.list <- lapply(seq(along = bo), function(x) ## no parallel
-    {
+    fwhm.list <- lapply(seq(along = bo), function(x){
         dec.list <- bo[[x]]
         fwhm.vec <- sapply(1:nrow(dec.list), function(k){
             chr <- chromatogram(raw_data, mz = c(dec.list[k,"mz"], dec.list[k,"mz"]+1),
                                 rt = dec.list[,c("rtmin", "rtmax")])
             int <- intensity(chr@.Data[[1]])
             int[is.na(int)] <- 0
-            fwhm.ret <- round(FWHM(int), digits = 3)
+            fwhm.ret <- round(.FWHM(int), digits = 3)
             fwhm.ret <- ifelse(test = length(fwhm.ret) == 0, yes = 0, no = fwhm.ret)
             return(fwhm.ret)
         })
         require(mclust)
         d_clust <- mclust::Mclust(fwhm.vec, G = 1:15)
-        ## d_clust$classification
         spec.df <- cbind.data.frame(dec.list, grp = d_clust$classification)
         grp.list <- split(spec.df, spec.df[,"grp"])
-        ## deconvoluted spec diag plot
-        ## plot(grp.list[[4]][,"mz"], grp.list[[4]][,"into"], type = "h")
-        ## points(grp.list[[3]][,"mz"], grp.list[[3]][,"into"], type = "h", col = 2)
-        ## points(grp.list[[2]][,"mz"], grp.list[[2]][,"into"], type = "h", col = 3)
-        ## points(grp.list[[1]][,"mz"], grp.list[[1]][,"into"], type = "h", col = 4)
         ## clean list
         grp.list.clean <- lapply(grp.list, function(x){
             if(nrow(x) < 6)
@@ -493,10 +490,9 @@ bayesDeconvolution <- function(xdata, raw_data){
 
     }## end lapply function
     )
-    ## stopCluster(clust)
-
     return(fwhm.list)
 }
+
 
 addXCMSPeaks3 <- function(files, object, param = NULL, ...){
     options(warn = -1) # Warning :implicit list embedding of S4 objects is deprecated
@@ -505,44 +501,37 @@ addXCMSPeaks3 <- function(files, object, param = NULL, ...){
         stop('Number of files must be the same as the number of runs (and must match).')
 
     ## features extraction and deconvolution
-    xs <- lapply(cdfFiles,
-                 function(x)
-                 {
-                     ## retention time range to scanrange
-                     f <- which(cdfFiles %in% x) 
-                     ## xr <- xcmsRaw(x)
-                     ## new xcms interface
-                     raw_data <- readMSData(files = x,  mode = "onDisk")
-                                          
-                     ## xr@scantime BECAME raw_data@featureData@data$retentionTime
-                     rtrange <- c(min(object@rawrt[[f]]),
-                                  max(object@rawrt[[f]])) * 60
-                     scanRange <- c(max(1,
-                                        which(raw_data@featureData@data$retentionTime > rtrange[1])[1], na.rm = TRUE),
-                                    min(length(raw_data@featureData@data$retentionTime),
-                                        which(raw_data@featureData@data$retentionTime > rtrange[2])[1] - 1, na.rm = TRUE))                     
-                     ## peak picking
-                     if(class(param) == "NULL")
-                     {
-                         cat("Please select the integration parametere related to the chromatographic peak detection you want to use \n")
-                     }
-                     xs <- findChromPeaks(raw_data, param = param)
-                     ## coerce the XCMSnExp object into an xcmsSet object:
-                     ## s <- as(xs, "xcmsSet")
-                     ## ## ## set mz range
-                     ## idx <- which(
-                     ##     s@peaks[,"mz"] > min(object@mz) &
-                     ##     s@peaks[,"mz"] < max(object@mz))
-                     ## s@peaks <- s@peaks[idx,]
-                     ## a <- annotate(s, ...)
-##                     browser()
-                     ## deconvolution
-                     xd <- chromPeaks(xs)
-                     a <- bayesDeconvolution(xdata = xd, raw_data = raw_data)
-                     return(a)
-                 }
-                 )
-
+    xs <- lapply(cdfFiles, function(x){
+        ## retention time range to scanrange
+        f <- which(cdfFiles %in% x) 
+        ## xr <- xcmsRaw(x)
+        ## new xcms interface
+        raw_data <- readMSData(files = x,  mode = "onDisk")        
+        ## xr@scantime BECAME raw_data@featureData@data$retentionTime
+        rtrange <- c(min(object@rawrt[[f]]),
+                     max(object@rawrt[[f]])) * 60
+        scanRange <- c(max(1,
+                           which(raw_data@featureData@data$retentionTime > rtrange[1])[1], na.rm = TRUE),
+                       min(length(raw_data@featureData@data$retentionTime),
+                           which(raw_data@featureData@data$retentionTime > rtrange[2])[1] - 1, na.rm = TRUE))                     
+        ## peak picking
+        if(class(param) == "NULL")
+        {
+            cat("Please select the integration parametere related to the chromatographic peak detection you want to use \n")
+        }
+        xs <- findChromPeaks(raw_data, param = param)        
+        ## deconvolution
+        xd <- chromPeaks(xs)
+        a <- .bayesDeconvolution(xdata = xd, raw_data = raw_data)                     
+        flat.grp.list <- .flatten3(a)
+        decon.list <- sapply(seq(from = 1, to = length(flat.grp.list), by = 13), function(i){
+            data.frame(flat.grp.list[i:(i+12)])
+        }, simplify = FALSE)
+        
+        return(decon.list)
+    }
+    )
+    
     ## which colum to be passed based on the peak-picking step
     if(class(param)[1] == "CentWaveParam"){
         area <- c('intb')
@@ -550,113 +539,90 @@ addXCMSPeaks3 <- function(files, object, param = NULL, ...){
     if(class(param)[1] == "MatchedFilterParam"){
         area <- c('intf')
     }
-
-    browser()
+    
     ## build @peaksdata
-    dl <- xs[[1]][2]
-    listona <- sapply(dl, function(x){lapply(x, rapply, f = c)} )
-
- 
-
-    flatten3 <- function(x) {
-  repeat {
-    if(!any(vapply(x, is.list, logical(1)))) return(x)
-    x <- Reduce(c, x)
-  }
-}
-
-    flatten3(dl)
-
-    data <- lapply(seq(along = cdfFiles),
-                   function(x){
-                       ## getpspectra return a matrix like chrompeaks
-                       ## filt <- sapply(xs[[x]]@pspectra, function(r){length(r)})
-                       ## spec.idx <- c(1:length(xs[[x]]@pspectra))[which(filt >= 6)]
-
-                       spec.idx <- c(1:length(xs[[x]]@pspectra))
-                       mzrange <- object@mz
-                       abu <- data.frame(matrix(0, nrow = length(mzrange),
-                                                ncol = length(spec.idx)))
-                       rownames(abu) <- mzrange
-                       colnames(abu) <- spec.idx
-                       ## schismatrix
-                       mz <- data.frame(mz = mzrange) ## dummy to be merged
-
-                       abu <- sapply(spec.idx, function(z){
-                           spec <- getpspectra(xs[[x]], z)[,c('mz', area)]# return a matrix
-                           spec[,'mz'] <- round(spec[,'mz'])
-                           ## check double mass
-                           if (max(table(spec[,1])) > 1){
-                               spec.noDouble <- cbind(aggregate(spec[,2],
-                                                                list(spec[,1]),
-                                                                FUN = sum))
-                               colnames(spec.noDouble) <- c('mz', area)
-                               spec <- spec.noDouble
-                           } else {
-                               spec
-                           } 
-                           ## bug due to a different mz range from
-                           ## peaksDataset() and addXCMS(); SOLVED
-                           abu$z <- merge(spec, mz, by = 'mz',
-                                          all = TRUE)[,area] ## THE GOAL
-                       }
-                                     )
-                       colnames(abu) <- spec.idx ## could be a problem?
-                       abu[is.na(abu)] <- c(0)
-                       return(abu)
-                   }
-                   )
+    data <- lapply(seq(along = cdfFiles), function(x){
+        ## getpspectra return a matrix like chrompeaks
+        ## filt <- sapply(xs[[x]]@pspectra, function(r){length(r)})
+        ## spec.idx <- c(1:length(xs[[x]]@pspectra))[which(filt >= 6)]
+        spec.idx <- c(1:length(xs[[x]]))
+        mzrange <- object@mz
+        abu <- data.frame(matrix(0, nrow = length(mzrange),
+                                 ncol = length(spec.idx)))
+        rownames(abu) <- mzrange
+        colnames(abu) <- spec.idx
+        ## schismatrix
+        mz <- data.frame(mz = mzrange) ## dummy to be merged
+        abu <- sapply(spec.idx, function(z){
+            spec <- xs[[x]][[z]][,c('mz', area)]# return a matrix
+            spec[,'mz'] <- round(spec[,'mz'])
+            ## check double mass
+            if(max(table(spec[,1])) > 1)
+            {
+                spec.noDouble <- cbind(aggregate(spec[,2], list(spec[,1]), FUN = sum))
+                colnames(spec.noDouble) <- c('mz', area)
+                spec <- spec.noDouble
+            }
+            else
+            {
+                spec
+            } 
+            ## bug due to a different mz range from
+            ## peaksDataset() and addXCMS(); SOLVED
+            abu$z <- merge(spec, mz, by = 'mz', all = TRUE)[,area] ## THE GOAL
+        }
+        )
+        colnames(abu) <- spec.idx ## could be a problem?
+        abu[is.na(abu)] <- c(0)
+        return(abu)
+    }
+    )
+    
     ## build @peaksrt
-    apex.rt <- lapply(seq(along = cdfFiles),
-                      function(x){
-                          filt <- sapply(xs[[x]]@pspectra, function(r){length(r)})
-                          spec.idx <- c(1:length(xs[[x]]@pspectra))[which(filt >= 6)]
-                          apex.rt <- sapply(spec.idx,
-                                            function(z){
-                                                spec.rt <- getpspectra(xs[[x]], z)[,c('rt')]
-                                                rt <- round(mean(spec.rt)/60, digits=3) # in minutes
-                                            }
-                                            )
-                          return(apex.rt)
-                      }
-                      )    
+    apex.rt <- lapply(seq(along = cdfFiles), function(x){
+        spec.idx <- c(1:length(xs[[x]]))
+        apex.rt <- sapply(spec.idx, function(z){
+            spec.rt <- xs[[x]][[z]][,c("rt")]# return a matrix
+            rt <- round(mean(spec.rt)/60, digits = 3) # in minutes
+        }
+        )
+        return(apex.rt)
+    }
+    )
+    
     ## build @peaksind
-    spectra.ind <- lapply(seq(along = cdfFiles),
-                          function(x){
-                              filt <- sapply(xs[[x]]@pspectra, function(r){length(r)})
-                              spec.idx <- c(1:length(xs[[x]]@pspectra))[which(filt >= 6)]
-                          }
-                          )        
+    spectra.ind <- lapply(seq(along = cdfFiles), function(x){
+        spec.idx <- c(1:length(xs[[x]]))
+    }
+    )
+
     ## build @peaksind.start
-    ind.start <- lapply(seq(along=cdfFiles),
-                        function(x){
-                            filt <- sapply(xs[[x]]@pspectra, function(r){length(r)})
-                            spec.idx <- c(1:length(xs[[x]]@pspectra))[which(filt >= 6)]
-                            rt.start <- sapply(spec.idx,
-                                               function(z){
-                                                   spec.rt <- getpspectra(xs[[x]], z)[,c('rtmin')]
-                                                   rt <- round(mean(spec.rt), digits=3)
-                                               }
-                                               )
-                            return(rt.start)
-                        }
-                        )
+    ind.start <- lapply(seq(along = cdfFiles), function(x){
+        spec.idx <- c(1:length(xs[[x]]))
+        rt.start <- sapply(spec.idx, function(z){
+            spec.rt <- xs[[x]][[z]][,c("rtmin")]
+            rt <- round(mean(spec.rt), digits = 3)
+        }
+        )
+        return(rt.start)
+    }
+    )
+    
     ## build @peaksind.stop
-    ind.stop <- lapply(seq(along = cdfFiles),
-                       function(x){
-                           filt <- sapply(xs[[x]]@pspectra, function(r){length(r)})
-                           spec.idx <- c(1:length(xs[[x]]@pspectra))[which(filt >= 6)]
-                           rt.stop <- sapply(spec.idx,
-                                             function(z){
-                                                 spec.rt <- getpspectra(xs[[x]], z)[,c('rtmax')]
-                                                 rt <- round(mean(spec.rt), digits=3)
-                                             }
-                                             )
-                           return(rt.stop)
-                       }
-                       )
+    ind.stop <- lapply(seq(along = cdfFiles), function(x){
+        spec.idx <- c(1:length(xs[[x]]))
+        rt.stop <- sapply(spec.idx, function(z){
+            spec.rt <- xs[[x]][[z]][,c("rtmax")]
+            rt <- round(mean(spec.rt), digits = 3)
+        }
+        )
+        return(rt.stop)
+    }
+    )
+
     ## build @files
     object@files    
+
     ## build @mz
     object@mz
     
@@ -693,4 +659,3 @@ addXCMSPeaks3 <- function(files, object, param = NULL, ...){
         mz = object@mz
         )
 }
-
