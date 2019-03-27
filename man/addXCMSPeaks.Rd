@@ -7,13 +7,17 @@
   according to their retention time using CAMERA and attaches them to an
   already created \code{peaksDataset} object} 
 
-\usage{addXCMSPeaks(files, object, peakPicking=c('cwt','mF'), ...)} 
+\usage{addXCMSPeaks(files, object, peakPicking=c('cwt','mF'),
+                    perfwhm = 0.75, quick = TRUE, ...)} 
 
 \arguments{
   \item{files}{character vector of same length as \code{object@rawdata}
     (user ensures the order matches)} 
   \item{object}{a \code{peaksDataset} object.}
   \item{peakPicking}{Methods to use for peak detection. See details.}
+  \item{perfwhm}{percentage of full width half maximum. See CAMERA::groupFWHM() for
+    more details}
+  \item{quick}{logical. See CAMERA::annotate() for more details }
   \item{...}{arguments passed on to \code{xcmsSet} and \code{annotate}} 
 }
 

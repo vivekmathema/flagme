@@ -91,8 +91,8 @@ ndpRT <- function(s1, s2, t1, t2, D){
         
         rtPen <- function(t1, t2, D){
             ## D espresso in secondi
-            t1 <- t1*60 # trasformo in secondi
-            t2 <- t2*60 # trasformo in secondi
+            t1 <- t1/60 # trasformo in secondi
+            t2 <- t2/60 # trasformo in secondi
             srt <- exp(-(((t1-t2)^2) / D^2)) # da articolo MR, modificato
             # era 2*D^2
             return(srt)
