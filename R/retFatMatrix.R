@@ -30,33 +30,24 @@
 #'                         filterMin = 1, metric = 2, type = 2)
 #' outList <- gatherInfo(pd, ma)
 #' mtxD <- retFatMatrix(object = pd, data = outList, minFilter = 1)
-retFatMatrix <- function(object, data, minFilter=1){
-    a <- lapply(seq(along=data), function(x){
+retFatMatrix <- function (object, data, minFilter = 1) 
+{
+    a <- lapply(seq(along = data), function(x) {
         apply(data[[x]]$data, 2, sum)
     })
-    abumtx <- do.call(rbind, a)
-    abumtx <- apply(abumtx, 1, '[' ) # works as t()
-    ## s <- rownames(abumtx)
-    rownames(abumtx) <- c(1:(dim(abumtx)[1]))
-    sample <- object@files # sample names
-    ## if(length(names(data[[1]]$rt)) == 0)
-    ## {
-    ##     sample <- data[[1]]$traceRaw[,1] ## ricca
-    ## }
-    ## else
-    ## {
-    ##     sample <- names(data[[1]]$rt) ## mark
-    ## }
-    
-    ## min filter
+    abumtx <- do.call(rbind, a) ## i nomi delle colonne equivalgono al numero del file. Il numero della riga equivale alla tasca della lista di gatherInfo()
+    abumtx <- apply(abumtx, 1, "[")
+    files_to_merge <- rownames(abumtx)
+    files.idx <- as.numeric(sub(pattern = "^.", replacement = "", files_to_merge))
+    sample <- object@files[files.idx]
+    ## rownames(abumtx) <- c(1:(dim(abumtx)[1])) ## qui sta la magagna!!!
+    ## sample <- object@files
     mf <- minFilter
     keep <- c()
-    for(g in 1:ncol(abumtx)){
-        keep[g] <- sum(!is.na(abumtx[,g])) >= mf
+    for (g in 1:ncol(abumtx)) {
+        keep[g] <- sum(!is.na(abumtx[, g])) >= mf
     }
-
-    abumtx[is.na(abumtx)] <- c(0) # remove NAs
-    df <- cbind.data.frame(sample, abumtx[,keep])
-    
+    abumtx[is.na(abumtx)] <- c(0)
+    df <- cbind.data.frame(sample, abumtx[, keep])
     return(df)
 }
