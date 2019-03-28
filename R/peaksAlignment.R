@@ -125,7 +125,7 @@ peaksAlignment <- function(d1, d2, t1, t2, gap=0.5, D=50,
 
     if(metric == 1)
     {
-        D <- D/100
+        D <- D/100 
     }
     r <- switch(metric,
                 normDotProduct(d1, d2, t1, t2, D=D, df=df+abs(ncol(d1)-ncol(d2)),
