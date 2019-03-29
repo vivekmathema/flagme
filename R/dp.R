@@ -79,17 +79,15 @@ dynRT <- function(S){
             trace[i] <- which(S[i,] == max(S[i,])) # RR
         }
     }
-    
     trace.mtx <- matrix(NA, nrow=nrow(S), ncol=2)  
     trace.mtx[,1] <- 1:nrow(S)
     trace[which(trace == 1)] <- NA
     trace.mtx[,2] <- trace
-
-    ## cercare i composti matchati più di una volta e renderli univoci
+    ## cercare i composti matchati piu di una volta e renderli univoci
     idx <- which(table(trace.mtx[,2]) > 1) # colonne della matrice S
     names.idx <- as.numeric(names(idx)) # i doppioni
-    position <- c() # i doppi con il match più alto
-
+    position <- c() # i doppi con il match piu alto
+    
     if(filling.names == 1)
     {
         for(k in 1:length(names.idx)){
@@ -102,10 +100,10 @@ dynRT <- function(S){
             position[k] <- which(S[,names.idx[k]] == max(S[,names.idx[k]]))
         }
     }
- 
+    
     tutti <- which(trace %in% names.idx)
     trace.mtx[,2][tutti[! tutti %in% position]] <- NA
-        
+    
     return(list(match=trace.mtx))
     
     options(warn=0)

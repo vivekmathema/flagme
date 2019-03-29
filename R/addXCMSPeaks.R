@@ -1,4 +1,4 @@
-addXCMSPeaks <- function (files, object, peakPicking = c("cwt", "mF"), perfwhm = 0.75, quick = quick, ...)
+addXCMSPeaks <- function (files, object, peakPicking = c("cwt", "mF"), perfwhm = 0.75, quick = TRUE, ...)
 {
     options(warn = -1)
     cdfFiles <- as.character(files)

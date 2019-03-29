@@ -123,10 +123,10 @@ peaksAlignment <- function(d1, d2, t1, t2, gap=0.5, D=50,
     ##             window.metric.c(d1,d2,mzind=mzind,df=df,w=w))                                         # metric=6
     ##                                                      )
 
-    if(metric == 1)
-    {
-        D <- D/100 
-    }
+    ## if(metric == 1) # why?
+    ## {
+    ##     D <- D/100 
+    ## }
     r <- switch(metric,
                 normDotProduct(d1, d2, t1, t2, D=D, df=df+abs(ncol(d1)-ncol(d2)),
                                timedf=timedf, verbose=verbose),
