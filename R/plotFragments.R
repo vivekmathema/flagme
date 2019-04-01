@@ -1,10 +1,229 @@
-
-.plotFragments<-function(peaks,pk=1,cols=NULL,ltys=NULL,TRANSFUN=log2,...) {
-  if(is.null(cols))
-    cols<-rep(c("black","green","blue","red"),each=ncol(peaks[[pk]]$data)/4)
-  if(is.null(ltys))
-     ltys<-rep(1,length(peaks))
-  pr<-paste(round(range(peaks[[pk]]$rt,na.rm=TRUE),2),collapse="-")
-  matplot(peaks[[pk]]$mz,TRANSFUN(peaks[[pk]]$data),type="l",col=cols,lty=ltys,xlab="m/z",ylab="Intensity",main=paste("index:",pk,"rt:",pr, "fragments:",nrow(peaks[[pk]]$data)),...)
+#' Plot the mass spectra from the profile matrix 
+#'
+#' Plot the deconvoluted mass spectra from the profile matrix 
+#' @title plotFrags
+#' @param object an object of class "peaksDataset" where to keep the
+#' mass spectra; both abundance (y) than m/z (x)  
+#' @param sample character, the sample from were to plot the mass spectra
+#' @param specID numerical, a vector containing the index of the spectra to be
+#' plotted.
+#' @param normalize logical, if TRUE normalize the intensity of the
+#' mass peak to 100, the most abundant is 100% and the other peaks
+#' are scaled consequetially
+#' @param ... other parameter passed to the plot() function
+#' @author riccardo.romoli@unifi.it
+#' @examples
+#' gcmsPath <- paste(find.package("gcspikelite"), "data", sep="/")
+#' cdfFiles <- dir(gcmsPath,"CDF", full=TRUE)
+#' # read data, peak detection results
+#' pd <- peaksDataset(cdfFiles[1:3], mz=seq(50,550), rtrange=c(7.5,10.5))
+#' pd <- addXCMSPeaks(files=cdfFiles[1:3], object=pd, peakPicking=c('mF'),
+#'                    snthresh=3, fwhm=10,  step=0.1, steps=2, mzdiff=0.5,
+#'                    sleep=0)
+#' ## align two chromatogram
+#' pA <- peaksAlignment(pd@peaksdata[[1]], pd@peaksdata[[2]],
+#'                      pd@peaksrt[[1]], pd@peaksrt[[2]], D=50,
+#'                      metric=3, compress=FALSE, type=2, penality=0.2)
+#' pA@v$match
+#' ## plot the mass spectra
+#' par(mfrow=c(2,1))
+#' plotFrags(object=pd, sample=cdfFiles[1], spectraID=10)
+#' plotFrags(object=pd, sample=cdfFiles[2], spectraID=12)
+plotFrags <- function(object, sample, specID, normalize = TRUE, ...){
+    sp <- as.numeric(specID)
+    ## sample <- object@files[sample]
+    ## i <- grep(pattern = sample, object@files)
+    if(length(sp) > 0){
+        y <- object@peaksdata[[sample]][,sp]        
+        if(normalize){
+            y <- sapply(y, function(x){
+                i <- which.max(y)
+                (100*x)/y[i]}
+                )}   
+        plot(y,
+             type = 'h',
+             main = paste('Sample', names(object@peaksdata[sample]), 'RT', object@peaksrt[[sample]][sp], 'min'),
+             xlab = 'm/z',
+             ylab =
+                 if(normalize)
+                 {
+                     'Rel. Abundance'
+                 }
+                 else
+                 {
+                     'Abs. Abundance'
+                 }, ...)
+    }
+    else
+    {
+        stop(paste('The spectrum is not present in the sample', object@files[sample], '\n'))
+    }
 }
+
+
+#' Plot the aligned mass spectra 
+#'
+#' Plot the deconvoluted and aligned mass spectra collected using gatherInfo()
+#' @title plotAlignedFrags
+#' @param object where to keep the mass range of the experiment
+#' @param outList where to keep the mass spectra; both abundance than m/z
+#' @param specID a vector containing the index of the spectra to be plotted.
+#'                Is referred to outList
+#' @param fullRange if TRUE uses the mass range of the whole experiment, 
+#'                  otherwise uses only the mass range of each plotted spectum
+#' @param normalize if TRUE normalize the intensity of the mass peak to 100, 
+#'                  the most abundant is 100% and the other peaks are scaled 
+#'                  consequetially
+#' @param ... further arguments passed to the ‘plot’ command
+#' @return
+#' @author Riccardo Romoli (riccardo.romoli@unifi.it)
+#' @seealso
+#' @keywords plot() gatherInfo()
+#' @examples
+#' ## Rd workflow
+#' gcmsPath <- paste(find.package("gcspikelite"), "data", sep = "/")
+#' cdfFiles <- dir(gcmsPath,"CDF", full = TRUE)
+#' 
+#' # read data, peak detection results
+#' pd <- peaksDataset(cdfFiles[1:4], mz = seq(50,550), rtrange = c(7.5,10.5))
+#' pd <- addXCMSPeaks(files = cdfFiles[1:4], object = pd, peakPicking = c('mF'),
+#'                    snthresh = 2, fwhm = 8,  step = 0.5, steps = 2, mzdiff = 0.5,
+#'                    sleep = 0)
+#' ## multiple alignment
+#' ma <- multipleAlignment(pd, c(1,1,2,2), wn.gap = 0.5, wn.D = 0.05, bw.gap = 0.6, 
+#'                         bw.D = 0.2, usePeaks = TRUE, filterMin = 1, df = 50,
+#'                         verbose = TRUE, metric = 2, type = 2)
+#' 
+#' ## gather apex intensities
+#' gip <- gatherInfo(pd, ma)
+#' gip[[33]]
+#' plotAlignedFrags(object = pd, outList = gip, specID = 33)
+plotAlignedFrags <- function(object, outList, specID, fullRange = TRUE,
+                                normalize = TRUE, ...){
+specID <- as.numeric(specID)
+mz <- outList[[specID]]$mz
+abundance <- outList[[specID]]$data
+
+if(normalize)
+{
+    for(i in 1:ncol(abundance))
+    {
+        if(is.na(sum(abundance[,i])))
+            next
+        abundance[,i] <- 100 * abundance[,i] / abundance[which.max(abundance[,i]), i]
+    }
+}   
+
+## set the plot grid
+specnum <- table(apply(abundance, 2, sum)) # count number of massSpec different from NA
+if(length(specnum) < 0)
+                                    {
+                                        paste0("The spec is not present!")
+                                    }
+else if(length(specnum) <= 3 & length(specnum) >= 1)
+                                    {
+                                        par(mfrow = c(3,1))
+                                    }
+else if(length(specnum) <= 6 & length(specnum) > 3)
+                                    {
+                                        par(mfrow = c(3,2))
+                                    }
+else if(length(specnum) <= 9 & length(specnum) > 6)
+                                    {
+                                        par(mfrow = c(3,3))
+                                    }
+else if(length(specnum) <= 12 & length(specnum) > 9)
+                                    {
+                                        par(mfrow = c(4,3))
+                                    }
+else if(length(specnum) <= 16 & length(specnum) > 12)
+                                    {
+                                        par(mfrow = c(4,4))
+                                    }
+else if(length(specnum) > 16)
+{
+    paste0("Too many spectra to plot. I will plot a random selection of the spec", specID, " from among the sample list")
+    par(mfrow = c(4, 4))
+    idx <- sample(1:ncol(abundance), size = 16)
+    abundance <- abundance[,idx]
+}
+##
+## do the plots
+for(i in 1:ncol(abundance))
+    {
+        if(is.na(apply(abundance, 2, sum)[i]))
+            next
+        plot(mz, abundance[,i], type = 'h', 
+            main = paste('Retention Time', 
+                         round(mean(outList[[specID]]$rt[i], na.rm = TRUE), 
+                         digits = 2), 'min - Sample ', object@files[i]),
+             xlab = 'm/z', 
+             ylab = if(normalize)
+                    {
+                        'Rel. Abundance'
+                    } 
+                    else 
+                    {
+                        'Abs. Abundance'
+                    }, 
+             
+             xlim = if(fullRange) 
+                    {
+                        range(object@mz)
+                    }
+             )    
+    }
+
+}
+
+
+
+## original by MR
+##
+## .plotFragments<-function(peaks,pk=1,cols=NULL,ltys=NULL,TRANSFUN=log2,...) {
+##   if(is.null(cols))
+##     cols<-rep(c("black","green","blue","red"),each=ncol(peaks[[pk]]$data)/4)
+##   if(is.null(ltys))
+##      ltys<-rep(1,length(peaks))
+##   pr<-paste(round(range(peaks[[pk]]$rt,na.rm=TRUE),2),collapse="-")
+##   matplot(peaks[[pk]]$mz,TRANSFUN(peaks[[pk]]$data),type="l",col=cols,lty=ltys,xlab="m/z",ylab="Intensity",main=paste("index:",pk,"rt:",pr, "fragments:",nrow(peaks[[pk]]$data)),...)
+## }
+
+
+##' .. Plot the aligned mass spec from the gatherInfo() in an averlapped way
+##'
+##' .. content for \details{} ..
+##' @title 
+##' @param peaks object fron gatherInfo()
+##' @param pk peak number
+##' @param cols 
+##' @param ltys 
+##' @param TRANSFUN transorm data
+##' @param ... further matplot() parameters
+##' @return plots the EI mass spec
+##' @author MR and RR
+.plotFragments <- function(peaks, pk = 1, cols = NULL, ltys = NULL, TRANSFUN = log2, ...)
+{
+    if(is.null(cols)){
+
+        if(ncol(peaks[[pk]]$data)/4 <= 1)
+        {
+                        cols <- c("black","green","blue","red")
+        }
+        else
+        {
+            cols <- rep(c("black","green","blue","red"), each = ncol(peaks[[pk]]$data)/4)
+        }
+    }
+    if(is.null(ltys))
+    {
+        ltys <- rep(1, length(peaks))
+    }
+    pr <- paste(round(range(peaks[[pk]]$rt, na.rm = TRUE), 2), collapse = "-")
+    matplot(peaks[[pk]]$mz, TRANSFUN(peaks[[pk]]$data), type = "h", col = cols, lty = ltys,
+            xlab = "m/z", ylab = "Intensity",
+            main = paste("index:", pk, "rt:", pr, "fragments:", nrow(peaks[[pk]]$data)), ...)
+}
+
+
 
