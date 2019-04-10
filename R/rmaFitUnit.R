@@ -1,3 +1,57 @@
+#' Fits a robust linear model (RLM) for one metabolite
+#' 
+#' Using \code{rlm} from MASS, this procedure fits a linear model using all the
+#' fragments
+#' 
+#' 
+#' Fits a robust linear model.
+#' 
+#' @param u a metabolite unit (list object with vectors \code{mz} and \code{rt}
+#' for m/z and retention times, respectively and a \code{data} element giving
+#' the fragmentxsample intensitity matrix)
+#' @param maxit maximum number of iterations (default: 5)
+#' @param mzEffect logical, whether to fit m/z effect (default: \code{TRUE})
+#' @param cls class variable
+#' @param fitSample whether to fit individual samples (alternative is fit by
+#' group)
+#' @param fitOrCoef whether to return a vector of coefficients (default:
+#' "coef"), or an \code{rlm} object ("fit")
+#' @param TRANSFORM function to transform the raw data to before fitting
+#' (default: \code{log2})
+#' @return
+#' 
+#' \code{list} giving elements of \code{fragment} and \code{sample}
+#' coefficients (if \code{fitOrCoef="coef"}) or a \code{list} of elements from
+#' the fitting process (if \code{fitOrCoef="fit"})
+#' @author Mark Robinson
+#' @seealso \code{\link{peaksAlignment}}, \code{\link{clusterAlignment}}
+#' @references
+#' 
+#' Mark D Robinson (2008).  Methods for the analysis of gas chromatography -
+#' mass spectrometry data \emph{PhD dissertation} University of Melbourne.
+#' @keywords manip
+#' @examples
+#' 
+#' require(gcspikelite)
+#' 
+#' # paths and files
+#' gcmsPath<-paste(find.package("gcspikelite"),"data",sep="/")
+#' cdfFiles<-dir(gcmsPath,"CDF",full=TRUE)
+#' eluFiles<-dir(gcmsPath,"ELU",full=TRUE)
+#' 
+#' # read data, peak detection results
+#' pd<-peaksDataset(cdfFiles[1:2],mz=seq(50,550),rtrange=c(7.5,8.5))
+#' pd<-addAMDISPeaks(pd,eluFiles[1:2])
+#' 
+#' # pairwise alignment using all scans
+#' fullca<-clusterAlignment(pd, usePeaks = FALSE, df = 100)
+#' 
+#' # calculate retention time shifts
+#' timedf<-calcTimeDiffs(pd, fullca)
+#'
+#' @importFrom stats contr.sum model.matrix
+#' @importFrom MASS rlm
+#' @export rmaFitUnit
 rmaFitUnit <- function(u,maxit=5,mzEffect=TRUE,cls=NULL,fitSample=TRUE,fitOrCoef=c("coef","fit"),TRANSFORM=log2) {
   d<-u$data
   fitOrCoef=match.arg(fitOrCoef)

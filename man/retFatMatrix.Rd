@@ -4,30 +4,32 @@
 \alias{retFatMatrix}
 \title{retFatMatrix}
 \usage{
-retFatMatrix(object, data, minFilter = 1)
+retFatMatrix(object, data, minFilter = round(length(object@files)/3 * 2))
 }
 \arguments{
 \item{object}{peakDataset object}
 
 \item{data}{a gatherInfo() object}
 
-\item{minFilter}{the minimum number for a feature to be returned 
-in the data matrix}
+\item{minFilter}{the minimum number for a feature to be returned in the data
+matrix. Default is 2/3 of the samples}
 }
 \value{
-A fat data matrix containing the area of the deconvoluted and aligned
-peaks. The row are the samples while the column represent the different peaks
+A fat data matrix containing the area of the deconvoluted and
+aligned peaks. The row are the samples while the column represent the
+different peaks
 }
 \description{
 Build a fat data matrix
 }
 \details{
-This function allows to extract the data from an object created using 
+This function allows to extract the data from an object created using
 \code{gatherInfo} and build a data matrix using the area of the deconvoluted
-and aligned peaks. The row are the samples while the column represent the 
+and aligned peaks. The row are the samples while the column represent the
 different peaks.
 }
 \examples{
+
 require(gcspikelite)
 # paths and files
 gcmsPath <- paste(find.package("gcspikelite"), "data", sep = "/")
@@ -42,6 +44,7 @@ ma <- multipleAlignment(pd = pd, group = c(1,1),
                         filterMin = 1, metric = 2, type = 2)
 outList <- gatherInfo(pd, ma)
 mtxD <- retFatMatrix(object = pd, data = outList, minFilter = 1)
+
 }
 \seealso{
 \code{\link{gatherInfo}}

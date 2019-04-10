@@ -118,7 +118,7 @@ visualization of a set of samples is the set of total ion currents
 (TIC), or extracted ion currents (XICs). To view TICs, you can call:
 
 <<plotexample1, fig=TRUE, width=9, height=7>>=
-plot(pd, rtrange=c(7.5,8.5), plotPeaks=TRUE, plotPeakLabels=TRUE,
+plotChrom(pd, rtrange=c(7.5,8.5), plotPeaks=TRUE, plotPeakLabels=TRUE,
      max.near=8, how.near=0.5, col=rep(c("blue","red","black"), each=3))
 @
 
@@ -215,8 +215,8 @@ par(mfrow=c(2,2), mai=c(0.8466,0.4806,0.4806,0.1486))
 for(i in 1:4){
   pa <- peaksAlignment(pd@peaksdata[[1]], pd@peaksdata[[2]],
                        pd@peaksrt[[1]], pd@peaksrt[[2]], D=Ds[i],
-                       gap=gaps[i], metric=1, type=1) 
-  plot(pa, xlim=c(0, 17), ylim=c(0, 16), matchCol="yellow",
+                       gap=gaps[i], metric=1, type=1, compress = FALSE) 
+  plotAlignment(pa, xlim=c(0, 17), ylim=c(0, 16), matchCol="yellow",
        main=paste("D=", Ds[i], " gap=", gaps[i], sep=""))
 }
 @
@@ -293,7 +293,7 @@ alignment procedure are given.  Next, we can take the alignment
 results and overlay it onto the TICs, allowing a visual inspection. 
 
 <<multiplealignmentfig,fig=TRUE,width=9,height=7>>=
-plot(pd, rtrange=c(7.5,8.5), runs=ma@betweenAlignment@runs,
+plotChrom(pd, rtrange=c(7.5,8.5), runs=ma@betweenAlignment@runs,
      mind=ma@betweenAlignment@ind, plotPeaks=TRUE,
      plotPeakLabels=TRUE, max.near=8, how.near=.5,
      col=rep(c("blue","red","black"), each=3))
@@ -336,7 +336,8 @@ mp
 
 
 \subsection{Gathering results}
-The alignment results can be extracted from the \texttt{multipleAlignment} object as:
+The alignment results can be extracted from the \texttt{multipleAlignment}
+object as: 
 <<multiplealignmentres>>=
 ma@betweenAlignment@runs
 ma@betweenAlignment@ind

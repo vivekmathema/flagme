@@ -1,15 +1,16 @@
-(TeX-add-style-hook "flagme"
+(TeX-add-style-hook
+ "flagme"
  (lambda ()
-    (TeX-run-style-hooks
-     "inputenc"
-     "utf8"
-     "ifthen"
-     "caption"
-     "tableposition=top"
-     "amscd"
-     "amsmath"
-     "latex2e"
-     "art10"
-     "article"
-     "")))
+   (TeX-add-to-alist 'LaTeX-provided-package-options
+                     '(("caption" "tableposition=top") ("inputenc" "utf8")))
+   (TeX-run-style-hooks
+    "latex2e"
+    "article"
+    "art10"
+    "amsmath"
+    "amscd"
+    "caption"
+    "ifthen"
+    "inputenc"))
+ :latex)
 

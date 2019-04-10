@@ -1,14 +1,18 @@
-##' Write the mass spectum into a .msp file to be used in NIST search.
-##'
-##' Write the mass spectum into a .msp file to be used in NIST search.
-##' @title exportSpectra
-##' @param object an object of class "peaksDataset"
-##' @param outList an object created using the gatherInfo() function
-##' @param spectra numeric. The number of the mass spectra to be printed. It correspond to the number of
-##' the peak in the plot() and the number of the peak in the gatherInfo() list.
-##' @param normalize logical. If the mass spectra has to be normalized to 100
-##' @return 
-##' @author riccardo.romoli@unifi.com
+#' exportSpectra
+#' 
+#' Write the mass spectum into a .msp file to be used in NIST search.
+#' 
+#' Write the mass spectum into a .msp file to be used in NIST search.
+#' 
+#' @param object an object of class "peaksDataset"
+#' @param outList an object created using the gatherInfo() function
+#' @param spectra numeric. The number of the mass spectra to be printed. It
+#' correspond to the number of the peak in the plot() and the number of the
+#' peak in the gatherInfo() list.
+#' @param normalize logical. If the mass spectra has to be normalized to 100
+#' @return a .msp file
+#' @author riccardo.romoli@@unifi.com
+#' @export exportSpectra
 exportSpectra <- function (object, outList, spectra, normalize = TRUE) 
 {
     spectra <- as.numeric(spectra)

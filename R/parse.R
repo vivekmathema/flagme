@@ -1,4 +1,53 @@
-
+#' Parser for ELU files
+#' 
+#' Reads ASCII ELU-format files from AMDIS (Automated Mass Spectral
+#' Deconvolution and Identification System)
+#' 
+#' 
+#' \code{parseELU} will typically be called by \code{\link{addAMDISPeaks}}, not
+#' called directly.
+#' 
+#' Peaks that are detected within \code{rt.cut} are merged together.  This
+#' avoids peaks which are essentially overlapping.
+#' 
+#' Fragments that are less than \code{min.pc} of the maximum intensity fragment
+#' are discarded.
+#' 
+#' @param f ELU filename to read.
+#' @param min.pc minimum percent of maximum intensity.
+#' @param mz vector of mass-to-charge bins of raw data table.
+#' @param rt.cut the difference in retention time, below which peaks are merged
+#' together.
+#' @param rtrange retention time range to parse peaks from, can speed up
+#' parsing if only interested in a small region (must be \code{numeric} vector
+#' of length 2)
+#' @return
+#' 
+#' \code{list} with components \code{peaks} (table of spectra -- rows are
+#' mass-to-charge and columns are the different detected peaks) and \code{tab}
+#' (table of features for each detection), according to what is stored in the
+#' ELU file.
+#' @author Mark Robinson
+#' @seealso \code{\link{addAMDISPeaks}}
+#' @references
+#' 
+#' Mark D Robinson (2008).  Methods for the analysis of gas chromatography -
+#' mass spectrometry data \emph{PhD dissertation} University of Melbourne.
+#' @keywords manip
+#' @examples
+#' 
+#' require(gcspikelite)
+#' 
+#' # paths and files
+#' gcmsPath<-paste(find.package("gcspikelite"),"data",sep="/")
+#' eluFiles<-dir(gcmsPath,"ELU",full=TRUE)
+#' 
+#' # parse ELU file
+#' eluList<-parseELU(eluFiles[1])
+#'
+#' @importFrom utils read.table
+#' @importFrom stats cutree dist hclust median
+#' @export parseELU
 parseELU <- function(f, min.pc=0.01, mz=seq(50, 550), rt.cut=0.008, rtrange=NULL){
 ##    options(warn=-1)
     mostart <- function(u, key = "MO") {
@@ -77,6 +126,61 @@ parseELU <- function(f, min.pc=0.01, mz=seq(50, 550), rt.cut=0.008, rtrange=NULL
     list(peaks=newpeaks, tab=newtab)
 }
 
+
+
+
+
+#' Parser for ChromaTOF files
+#' 
+#' Reads ASCII ChromaTOF-format files from AMDIS (Automated Mass Spectral
+#' Deconvolution and Identification System)
+#' 
+#' 
+#' \code{parseChromaTOF} will typically be called by
+#' \code{\link{addChromaTOFPeaks}}, not called directly.
+#' 
+#' Peaks that are detected within \code{rt.cut} are merged together.  This
+#' avoids peaks which are essentially overlapping.
+#' 
+#' Fragments that are less than \code{min.pc} of the maximum intensity fragment
+#' are discarded.
+#' 
+#' @param fn ChromaTOF filename to read.
+#' @param min.pc minimum percent of maximum intensity.
+#' @param mz vector of mass-to-charge bins of raw data table.
+#' @param rt.cut the difference in retention time, below which peaks are merged
+#' together.
+#' @param rtrange retention time range to parse peaks from, can speed up
+#' parsing if only interested in a small region (must be \code{numeric} vector
+#' of length 2)
+#' @param skip number of rows to skip at beginning of the ChromaTOF
+#' @param rtDivide multiplier to divide the retention times by (default: 60)
+#' @return
+#' 
+#' \code{list} with components \code{peaks} (table of spectra -- rows are
+#' mass-to-charge and columns are the different detected peaks) and \code{tab}
+#' (table of features for each detection), according to what is stored in the
+#' ChromaTOF file.
+#' @author Mark Robinson
+#' @seealso \code{\link{addAMDISPeaks}}
+#' @references
+#' 
+#' Mark D Robinson (2008).  Methods for the analysis of gas chromatography -
+#' mass spectrometry data \emph{PhD dissertation} University of Melbourne.
+#' @keywords manip
+#' @examples
+#' 
+#' require(gcspikelite)
+#' 
+#' # paths and files
+#' gcmsPath<-paste(find.package("gcspikelite"),"data",sep="/")
+#' tofFiles<-dir(gcmsPath,"tof",full=TRUE)
+#' 
+#' # parse ChromaTOF file
+#' cTofList<-parseChromaTOF(tofFiles[1])
+#'
+#' @importFrom utils read.table
+#' @export parseChromaTOF
 parseChromaTOF<-function(fn,min.pc=.01,mz=seq(85,500),rt.cut=.008,rtrange=NULL,skip=1, rtDivide=60) {
   f<-read.table(fn,sep="\t",quote="",comment.char="",skip=skip,header=TRUE,stringsAsFactors=FALSE)
   pk<-matrix(0,nrow=length(mz),ncol=nrow(f))

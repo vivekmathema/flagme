@@ -1,3 +1,48 @@
+#' Normalized Dot Product
+#' 
+#' This function calculates the similarity of all pairs of peaks from 2
+#' samples, using the spectra similarity
+#' 
+#' 
+#' Efficiently computes the normalized dot product between every pair of peak
+#' vectors and returns a similarity matrix.  C code is called.
+#' 
+#' @param x1 data matrix for sample 1
+#' @param x2 data matrix for sample 2
+#' @param t1 vector of retention times for sample 1
+#' @param t2 vector of retention times for sample 2
+#' @param df distance from diagonal to calculate similarity
+#' @param D retention time penalty
+#' @param timedf matrix of time differences to normalize to.  if \code{NULL}, 0
+#' is used.
+#' @param verbose logical, whether to print out information
+#' @return
+#' 
+#' matrix of similarities
+#' @author Mark Robinson
+#' @seealso \code{\link{dp}}, \code{\link{peaksAlignment}}
+#' @references
+#' 
+#' Mark D Robinson (2008).  Methods for the analysis of gas chromatography -
+#' mass spectrometry data \emph{PhD dissertation} University of Melbourne.
+#' @keywords manip
+#' @examples
+#' 
+#' require(gcspikelite)
+#' 
+#' # paths and files
+#' gcmsPath<-paste(find.package("gcspikelite"),"data",sep="/")
+#' cdfFiles<-dir(gcmsPath,"CDF",full=TRUE)
+#' eluFiles<-dir(gcmsPath,"ELU",full=TRUE)
+#' 
+#' # read data, peak detection results
+#' pd<-peaksDataset(cdfFiles[1:2],mz=seq(50,550),rtrange=c(7.5,8.5))
+#' pd<-addAMDISPeaks(pd,eluFiles[1:2])
+#' 
+#' r<-normDotProduct(pd@peaksdata[[1]],pd@peaksdata[[2]])
+#'
+#' @useDynLib flagme
+#' @export normDotProduct
 normDotProduct <- function (x1, x2, t1=NULL, t2=NULL, df=max(ncol(x1), ncol(x2)), 
                                D=1e+05, timedf=NULL, verbose=FALSE){
     if(is.null(t1)) 
@@ -66,8 +111,47 @@ normDotProduct <- function (x1, x2, t1=NULL, t2=NULL, df=max(ncol(x1), ncol(x2))
 ## }
 
 
+
 ## RR ##
 ## retention time penalized normDotProd
+
+#' Retention Time Penalized Normalized Dot Product
+#' 
+#' This function calculates the similarity of all pairs of peaks from 2
+#' samples, using the spectra similarity and the rretention time differencies
+#' 
+#' Computes the normalized dot product between every pair of peak vectors in
+#' the retention time window (\code{D})and returns a similarity matrix.
+#' 
+#' @param s1 data matrix for sample 1
+#' @param s2 data matrix for sample 2
+#' @param t1 vector of retention times for sample 1
+#' @param t2 vector of retention times for sample 2
+#' @param D retention time window for the matching
+#' @return matrix of similarities
+#' @author Riccardo Romoli
+#' @seealso \code{\link{peaksAlignment}}
+#' @keywords manip
+#' @examples
+#' 
+#' ## Not Run
+#' require(gcspikelite)
+#' gcmsPath <- paste(find.package("gcspikelite"), "data", sep="/")
+#' cdfFiles <- dir(gcmsPath,"CDF", full=TRUE)
+#' 
+#'                                         # read data, peak detection results
+#' pd <- peaksDataset(cdfFiles[1:3], mz=seq(50,550), rtrange=c(7.5,10.5))
+#' pd <- addXCMSPeaks(files=cdfFiles[1:3], object=pd, peakPicking=c('mF'),
+#'                    snthresh=3, fwhm=10,  step=0.1, steps=2, mzdiff=0.5,
+#'                    sleep=0)
+#' ## review peak picking
+#' plotChrom(pd, rtrange=c(7.5, 10.5), runs=c(1:3))
+#' 
+#' r <- ndpRT(pd@peaksdata[[1]], pd@peaksdata[[2]],
+#'            pd@peaksrt[[1]], pd@peaksrt[[2]], D=50)
+#' ## End (Not Run)
+#' 
+#' @export ndpRT
 ndpRT <- function(s1, s2, t1, t2, D){
     
     Normalize <- function(j){
@@ -115,7 +199,49 @@ ndpRT <- function(s1, s2, t1, t2, D){
 }
 
 
+
+
 ## correlation Alignment
+
+#' Retention Time Penalized Correlation
+#' 
+#' This function calculates the similarity of all pairs of peaks from 2
+#' samples, using the spectra similarity and the rretention time differencies
+#' 
+#' Computes the Pearson carrelation between every pair of peak vectors in the
+#' retention time window (\code{D})and returns the similarity matrix.
+#' 
+#' @param d1 data matrix for sample 1
+#' @param d2 data matrix for sample 2
+#' @param t1 vector of retention times for sample 1
+#' @param t2 vector of retention times for sample 2
+#' @param D retention time window for the matching
+#' @param penality penalization applied to the matching between two mass
+#' spectra if \code{(t1-t2)>D}
+#' @return matrix of similarities
+#' @author Riccardo Romoli
+#' @seealso \code{\link{peaksAlignment}}
+#' @keywords manip
+#' @examples
+#' 
+#' ## Not Run
+#' require(gcspikelite)
+#' gcmsPath <- paste(find.package("gcspikelite"), "data", sep="/")
+#' cdfFiles <- dir(gcmsPath,"CDF", full=TRUE)
+#' ## read data, peak detection results
+#' pd <- peaksDataset(cdfFiles[1:3], mz=seq(50,550), rtrange=c(7.5,10.5))
+#' pd <- addXCMSPeaks(files=cdfFiles[1:3], object=pd, peakPicking=c('mF'),
+#'                    snthresh=3, fwhm=10,  step=0.1, steps=2, mzdiff=0.5,
+#'                    sleep=0)
+#' ## review peak picking
+#' plotChrom(pd, rtrange=c(7.5, 10.5), runs=c(1:3))
+#' 
+#' r <- corPrt(pd@peaksdata[[1]], pd@peaksdata[[2]],
+#'            pd@peaksrt[[1]], pd@peaksrt[[2]], D=50, penality=0.2)
+#' ## End (Not Run)
+#'
+#' @importFrom stats complete.cases
+#' @export corPrt
 corPrt <- function(d1, d2, t1, t2, D, penality=0.2){
     D <- as.numeric(D) # time window in second
     pn <- as.numeric(penality)# penality if out of time window

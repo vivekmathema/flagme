@@ -6,12 +6,13 @@ Author: Mark Robinson <mark.robinson@imls.uzh.ch>, Riccardo Romoli <riccardo.rom
 Maintainer: Mark Robinson <mark.robinson@imls.uzh.ch>, Riccardo Romoli <riccardo.romoli@unifi.it>
 Depends: gcspikelite, xcms, CAMERA
 Imports: gplots, graphics, MASS, methods, SparseM, stats, utils
-Description: Fragment-level analysis of gas chromatography - mass
-        spectrometry metabolomics data
+Description: Fragment-level analysis of gas chromatography-massspectrometry
+             metabolomics data. 
 License: LGPL (>= 2)
 Collate: 0classes.R clusterAlignment.R init.R multipleAlignment.R
         peaksAlignment.R progressiveAlignment.R betweenAlignment.R dp.R
         metrics.R parse.R peaksDataset.R gatherInfo.R plotFragments.R
         rmaFitUnit.R addXCMSPeaks.R retFatMatrix.R exportSpectra.R
 biocViews: DifferentialExpression, MassSpectrometry
-RoxygenNote: 6.0.1
+RoxygenNote: 6.1.1
+Encoding: UTF-8

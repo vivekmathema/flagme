@@ -4,31 +4,28 @@
 \alias{exportSpectra}
 \title{exportSpectra}
 \usage{
-exportSpectra(object, sample, spectraID, normalize = TRUE)
+exportSpectra(object, outList, spectra, normalize = TRUE)
 }
 \arguments{
-\item{object}{an object of class "peaksDataset" where to keep the
-mass spectra; both abundance (y) than m/z (x)}
+\item{object}{an object of class "peaksDataset"}
 
-\item{sample}{character, the sample from were to plot the mass spectra}
+\item{outList}{an object created using the gatherInfo() function}
 
-\item{spectraID}{numerical, a vector containing the index of the spectra to be
-plotted.}
+\item{spectra}{numeric. The number of the mass spectra to be printed. It
+correspond to the number of the peak in the plot() and the number of the
+peak in the gatherInfo() list.}
 
-\item{normalize}{logical, if TRUE normalize the intensity of the
-mass peak to 100, the most abundant is 100% and the other peaks
-are scaled consequetially}
+\item{normalize}{logical. If the mass spectra has to be normalized to 100}
 }
 \value{
-a .msp file ready to be read using NIST search
+a .msp file
 }
 \description{
-Write the deconvoluted mass spectra to an external file
+Write the mass spectum into a .msp file to be used in NIST search.
 }
 \details{
-Write a .msp file of the deconvoluted mass spectra. Usfull to try
-to identify the unknown spectra using NIST Search.
+Write the mass spectum into a .msp file to be used in NIST search.
 }
 \author{
-riccardo.romoli@unifi.it
+riccardo.romoli@unifi.com
 }

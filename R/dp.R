@@ -1,3 +1,48 @@
+#' Dynamic programming algorithm, given a similarity matrix
+#' 
+#' This function calls C code for a bare-bones dynamic programming algorithm,
+#' finding the best cost path through a similarity matrix.
+#' 
+#' 
+#' This is a pretty standard implementation of a bare-bones dynamic programming
+#' algorithm, with a single gap parameter and allowing only simple jumps
+#' through the matrix (up, right or diagonal).
+#' 
+#' @param M similarity matrix
+#' @param gap penalty for gaps
+#' @param big large value used for matrix margins
+#' @param verbose logical, whether to print out information
+#' @return
+#' 
+#' \code{list} with element \code{match} with the set of pairwise matches.
+#' @author Mark Robinson
+#' @seealso \code{\link{normDotProduct}}
+#' @references
+#' 
+#' Mark D Robinson (2008).  Methods for the analysis of gas chromatography -
+#' mass spectrometry data \emph{PhD dissertation} University of Melbourne.
+#' @keywords manip
+#' @examples
+#' 
+#' require(gcspikelite)
+#' 
+#' # paths and files
+#' gcmsPath<-paste(find.package("gcspikelite"),"data",sep="/")
+#' cdfFiles<-dir(gcmsPath,"CDF",full=TRUE)
+#' eluFiles<-dir(gcmsPath,"ELU",full=TRUE)
+#' 
+#' # read data, peak detection results
+#' pd<-peaksDataset(cdfFiles[1:2],mz=seq(50,550),rtrange=c(7.5,8.5))
+#' pd<-addAMDISPeaks(pd,eluFiles[1:2])
+#' 
+#' # similarity matrix
+#' r<-normDotProduct(pd@peaksdata[[1]],pd@peaksdata[[2]])
+#' 
+#' # dynamic-programming-based matching of peaks
+#' v<-dp(r,gap=.5)
+#'
+#' @useDynLib flagme
+#' @export dp
 dp<-function(M,gap=.5,big=10000000000,verbose=FALSE) {
 
   # setup score matrix
@@ -24,33 +69,41 @@ dp<-function(M,gap=.5,big=10000000000,verbose=FALSE) {
 }
 
 
-##' Dynamic Retention Time Based Alignment algorithm, given a similarity matrix
-##'
-##' This function align two chromatograms finding the maximum
-##'     similarity among the mass spectra
-##' @title dynRT
-##' @param S similarity matrix
-##' @return list containing the matched peaks between the two
-##'     chromatograms. The number represent position of the spectra in
-##'     the S matrix 
-##' @author riccardo.romoli@unifi.it
-##' @examples
-##' require(gcspikelite)
-##' gcmsPath <- paste(find.package("gcspikelite"), "data", sep="/")
-##' cdfFiles <- dir(gcmsPath,"CDF", full=TRUE)
-##' ## read data, peak detection results
-##' pd <- peaksDataset(cdfFiles[1:3], mz=seq(50,550),
-##'     rtrange=c(7.5,10.5))
-##' pd <- addXCMSPeaks(files=cdfFiles[1:3], object=pd,
-##'     peakPicking=c('mF'),snthresh=3, fwhm=10,  step=0.1, steps=2,
-##'     mzdiff=0.5, sleep=0)
-##' ## review peak picking
-##' plot(pd, rtrange=c(7.5, 10.5), runs=c(1:3))
-##' ## similarity
-##' r <- ndpRT(pd@peaksdata[[1]], pd@peaksdata[[2]], pd@peaksrt[[1]],
-##'     pd@peaksrt[[2]], D=50)
-##' ## dynamic retention time based alignment algorithm
-##' v <- dynRT(S=r)
+
+
+
+
+#' dynRT
+#' 
+#' Dynamic Retention Time Based Alignment algorithm, given a similarity matrix
+#' 
+#' This function align two chromatograms finding the maximum similarity among
+#' the mass spectra
+#' 
+#' @param S similarity matrix
+#' @return list containing the matched peaks between the two chromatograms. The
+#' number represent position of the spectra in the S matrix
+#' @author riccardo.romoli@@unifi.it
+#' @examples
+#' 
+#' require(gcspikelite)
+#' gcmsPath <- paste(find.package("gcspikelite"), "data", sep="/")
+#' cdfFiles <- dir(gcmsPath,"CDF", full=TRUE)
+#' ## read data, peak detection results
+#' pd <- peaksDataset(cdfFiles[1:3], mz=seq(50,550),
+#'     rtrange=c(7.5,10.5))
+#' pd <- addXCMSPeaks(files=cdfFiles[1:3], object=pd,
+#'     peakPicking=c('mF'),snthresh=3, fwhm=10,  step=0.1, steps=2,
+#'     mzdiff=0.5, sleep=0)
+#' ## review peak picking
+#' plotChrom(pd, rtrange=c(7.5, 10.5), runs=c(1:3))
+#' ## similarity
+#' r <- ndpRT(pd@peaksdata[[1]], pd@peaksdata[[2]], pd@peaksrt[[1]],
+#'     pd@peaksrt[[2]], D=50)
+#' ## dynamic retention time based alignment algorithm
+#' v <- dynRT(S=r)
+#' 
+#' @export dynRT
 dynRT <- function(S){
     options(warn=-1)
     ## S similarity matrix

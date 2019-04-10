@@ -1,4 +1,12 @@
-
+##' Compress method for progressiveAlignment
+##'
+##' Compress method for progressiveAlignment
+##' @title Compress method for progressiveAlignment
+##' @param object dummy 
+##' @param verbose dummy
+##' @param ... dummy
+##' @author MR
+##' @keywords internal
 setMethod("decompress", "progressiveAlignment",
           function(object, verbose=TRUE, ...){
               if(object@merges[[1]]$compressed == FALSE) {
@@ -15,6 +23,16 @@ setMethod("decompress", "progressiveAlignment",
               new("progressiveAlignment", object)
           })
 
+##' Decompress method for progressiveAlignment
+##'
+##' Deompress method for progressiveAlignment
+##' @title Compress method for progressiveAlignment
+##' @param object dummy
+##' @param verbose dummy
+##' @param ... dummy
+##' @keywords internal
+##' @author MR
+##' @importFrom SparseM as.matrix.csc
 setMethod("compress","progressiveAlignment",
           function(object,verbose=TRUE,...) {
               if(object@merges[[1]]$compressed) {
@@ -32,53 +50,118 @@ setMethod("compress","progressiveAlignment",
           })
 
 
+##' Show method for progressiveAlignment object
+##'
+##' Show method for progressiveAlignment object
+##' @param object progressiveAlignment object
+##' @author MR
+##' @export
+##' @noRd
+setMethod("show","progressiveAlignment",
+function(object){
+   cat("An object of class \"", class(object), "\"\n", sep="")
+   cat(length(object@merges), "merges\n")
+})
+
+
+
+#' Data Structure for progressive alignment of many GCMS samples
+#' 
+#' Performs a progressive peak alignment (clustalw style) of multiple GCMS peak
+#' lists
+#' 
+#' The progressive peak alignment we implemented here for multiple GCMS peak
+#' lists is analogous to how \code{clustalw} takes a set of pairwise sequence
+#' alignments and progressively builds a multiple alignment.  More details can
+#' be found in the reference below.
+#'
+#' @name progressiveAlignment-class
+#' @aliases progressiveAlignment-class progressiveAlignment-show
+#' progressiveAlignment show,progressiveAlignment-method
+#' @param pD a \code{peaksDataset} object
+#' @param cA a \code{clusterAlignment} object
+#' @param D retention time penalty
+#' @param gap gap parameter
+#' @param verbose logical, whether to print information
+#' @param usePeaks logical, whether to use peaks (if \code{TRUE}) or the full
+#' 2D profile alignment (if \code{FALSE})
+#' @param df distance from diagonal to calculate similarity
+#' @param compress logical, whether to store the similarity matrices in sparse
+#' form
+#' @param type numeric, two different type of alignment function
+#' @return \code{progressiveAlignment} object
+#' @author Mark Robinson
+#' @seealso \code{\link{peaksDataset}}, \code{\link{multipleAlignment}}
+#' @references Mark D Robinson (2008).  Methods for the analysis of gas
+#' chromatography - mass spectrometry data \emph{PhD dissertation} University
+#' of Melbourne.
+#' @keywords classes
+#' @examples
+#' 
+#' require(gcspikelite)
+#' ## paths and files
+#' gcmsPath <- paste(find.package("gcspikelite"), "data", sep="/")
+#' cdfFiles <- dir(gcmsPath, "CDF", full=TRUE)
+#' eluFiles <- dir(gcmsPath, "ELU", full=TRUE)
+#' 
+#' ## read data, peak detection results
+#' pd <- peaksDataset(cdfFiles[1:2], mz=seq(50,550), rtrange=c(7.5,8.5))
+#' pd <- addAMDISPeaks(pd, eluFiles[1:2])
+#' 
+#' ca <- clusterAlignment(pd, gap=.5, D=.05, df=30, metric=1, type=1,
+#'                        compress = FALSE)
+#' pa <- progressiveAlignment(pd, ca, gap=.6, D=.1, df=30, type=1, compress = FALSE)
+#'
+#' @export
 progressiveAlignment <- function(pD, cA, D = 50, gap = 0.5, verbose = TRUE,
-                                 usePeaks = TRUE, df = 30, compress = TRUE,
-                                 type=2){
-  # options(error = recover)
-  m <- cA@merge
-  merges <- vector("list", nrow(m))
-  if(usePeaks)
-  {
-    pd <- pD@peaksdata
-  }
-  else
-  {
-    pd <- pD@rawdata
-  }
-  pD <- NULL
-  cA <- decompress(cA, verbose = verbose)
-    
-  for(i in 1:nrow(m))
-  {
-    if(verbose)
-      {
-        cat("[progressiveAlignment] Doing merge", m[i,], "\n")
-      }
-    
-    # left  
-    if(m[i,1] < 0)
-      {
-        left.runs <- (-m[i,1])
-        left.ind <- matrix(1:ncol(pd[[left.runs]]), ncol = 1)
-      }
+                                 usePeaks = TRUE, df = 30, compress = FALSE,
+                                 type=2)
+{
+    ## options(error = recover)
+    m <- cA@merge
+    merges <- vector("list", nrow(m))
+    if(usePeaks)
+    {
+        pd <- pD@peaksdata
+    }
     else
-      {
-        left.runs <- merges[[m[i,1]]]$runs
-        left.ind <- merges[[m[i,1]]]$ind
-      }
+    {
+        pd <- pD@rawdata
+    }
+    pD <- NULL #?
+    cA <- decompress(cA, verbose = verbose)
     
-    # right
-    if(m[i,2] < 0)
-      {
-        right.runs <- abs(m[i,2])
-        right.ind <- matrix(1:ncol(pd[[right.runs]]), ncol = 1)
-      }
-    else
-      {
-        right.ind <- merges[[m[i,2]]]$ind
-        right.runs <- merges[[m[i,2]]]$runs
-      }
+    for(i in 1:nrow(m))
+    {
+        if(verbose)
+        {
+            cat("[progressiveAlignment] Doing merge", m[i,], "\n")
+        }
+        
+        ## left  
+        if(m[i,1] < 0)
+        {
+            left.runs <- (-m[i,1])
+            left.ind <- matrix(1:ncol(pd[[left.runs]]), ncol = 1)
+        }
+        else
+        {
+            left.runs <- merges[[m[i,1]]]$runs
+            left.ind <- merges[[m[i,1]]]$ind
+        }
+  
+        ## right
+        if(m[i,2] < 0)
+        {
+            right.runs <- abs(m[i,2])
+            right.ind <- matrix(1:ncol(pd[[right.runs]]), ncol = 1) ## error
+            ## subscript out of bound
+        }
+        else
+        {
+            right.ind <- merges[[m[i,2]]]$ind
+            right.runs <- merges[[m[i,2]]]$runs
+        }
 	
 	  if(verbose)
       {
@@ -247,11 +330,4 @@ progressiveAlignment <- function(pD, cA, D = 50, gap = 0.5, verbose = TRUE,
     }
     mg
 }
-
-setMethod("show","progressiveAlignment",
-function(object){
-   cat("An object of class \"", class(object), "\"\n", sep="")
-   cat(length(object@merges), "merges\n")
-})
-
 
